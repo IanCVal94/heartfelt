@@ -47,7 +47,7 @@ public class globalHyperate : MonoBehaviour
                 // Update the global heart rate variable
                 GlobalHeartRate = int.Parse(msg["payload"]["hr"].ToString());
                 Debug.Log($"Heart Rate Updated: {GlobalHeartRate}");
-                // should be able to pull from most other c# scripts by using hyperateSocket.GlobalHeartRate.ToString();
+                // should be able to pull from most other c# scripts by using globalHyperate.GlobalHeartRate.ToString();
             }
         };
 

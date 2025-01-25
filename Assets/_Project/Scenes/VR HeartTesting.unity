@@ -638,8 +638,9 @@ GameObject:
   - component: {fileID: 559048766}
   - component: {fileID: 559048769}
   - component: {fileID: 559048768}
+  - component: {fileID: 559048770}
   m_Layer: 0
-  m_Name: Heart (Placeholder)
+  m_Name: Heart Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -653,12 +654,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 559048765}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.046, y: -0.014, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.386, y: 1.773516, z: -0.524}
   m_LocalScale: {x: 0.11362023, y: 0.15294972, z: 0.15294972}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1212088602}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &559048768
 MeshRenderer:
@@ -710,6 +711,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 559048765}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &559048770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559048765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 878b773950acf438db5286c5af012eac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eyeAnchor: {fileID: 58303593}
+  heart: {fileID: 1657976419}
+  heartInteractable: {fileID: 0}
+  hasHeart: 0
 --- !u!1 &797284177
 GameObject:
   m_ObjectHideFlags: 0
@@ -729,7 +746,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &797284178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1259,54 +1276,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1212088600
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1212088602}
-  - component: {fileID: 1212088601}
-  m_Layer: 0
-  m_Name: HeartBox
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1212088601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1212088600}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 878b773950acf438db5286c5af012eac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eyeAnchor: {fileID: 58303593}
-  heart: {fileID: 1657976419}
-  hasHeart: 0
---- !u!4 &1212088602
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1212088600}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.436, y: 1.7875161, z: -2.289}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 559048766}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1354998238
@@ -2394,7 +2363,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1001 &2181405618988545911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2883,6 +2852,10 @@ PrefabInstance:
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7517549319329480228, guid: 521327bdbcb341f782d36f02cab76cb0, type: 3}
+      propertyPath: m_ThrowOnDetach
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7517549319329480228, guid: 521327bdbcb341f782d36f02cab76cb0, type: 3}
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 3127728407676174906}
@@ -3000,15 +2973,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.55999947
+      value: 1.386
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.4909999
+      value: 1.773516
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.5500004
+      value: -0.524
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3024,7 +2997,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4257412417454173056, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3038,6 +3011,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4257412417454173058, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+      propertyPath: m_MovementType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4257412417454173058, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+      propertyPath: m_AttachTransform
+      value: 
+      objectReference: {fileID: 559048766}
     - target: {fileID: 4257412417454173058, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -3071,10 +3052,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Heart (Grabbable)
       objectReference: {fileID: 0}
+    - target: {fileID: 4257412417454173071, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+      propertyPath: m_TagString
+      value: Heart
+      objectReference: {fileID: 0}
     - target: {fileID: 5696302975601547499, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 03f8bd01ced69464ab7f5d7a0d94291f, type: 2}
+    - target: {fileID: 6056682962065602878, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+      propertyPath: m_TagString
+      value: Heart
+      objectReference: {fileID: 0}
     - target: {fileID: 6865308534320718724, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.23976599
@@ -3401,10 +3390,10 @@ SceneRoots:
   - {fileID: 2991896911459612469}
   - {fileID: 1080163228}
   - {fileID: 1017698943352573226}
-  - {fileID: 3755484750907343783}
   - {fileID: 1411547523}
   - {fileID: 155683069}
   - {fileID: 797284182}
-  - {fileID: 1212088602}
+  - {fileID: 3755484750907343783}
+  - {fileID: 559048766}
   - {fileID: 823482018}
   - {fileID: 1196862352}

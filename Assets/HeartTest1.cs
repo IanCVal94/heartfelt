@@ -13,24 +13,41 @@ public class HeartTest1 : MonoBehaviour
 
     private Vector3 initialScale;
     private bool isPulsing;
-    
+    private bool previousKinematicState;
+
     [Header("Audio")]
     public AudioSource heartBeat;
+
+    [Header("Physics")]
+    Rigidbody rb;
 
     void Start()
     {
         // Save the initial scale of the object
         initialScale = transform.localScale;
+
+        rb = GetComponent<Rigidbody>();
+        previousKinematicState = rb.isKinematic;
     }
 
     void Update()
     {
+        // Convert to int
+        SetHeartRate((int)globalHyperate.GlobalHeartRate);
+
         // Dynamically update the heart rate in case it changes
         float pulseDuration = 60f / heartRate;
 
         if (!isPulsing)
         {
             StartCoroutine(Pulse(pulseDuration));
+        }
+
+        // Check for changes in the kinematic state
+        if (rb.isKinematic != previousKinematicState)
+        {
+            Debug.Log("Rigidbody kinematic state changed to: " + rb.isKinematic);
+            previousKinematicState = rb.isKinematic;
         }
     }
 
@@ -40,7 +57,12 @@ public class HeartTest1 : MonoBehaviour
 
         // Play heartbeat sound
         if (heartBeat != null)
+        {
             heartBeat.Play();
+        }
+
+        // Trigger haptics
+        TriggerHaptic(duration);
 
         // Pulse out (quick grow)
         float elapsedTime = 0f;
@@ -73,5 +95,28 @@ public class HeartTest1 : MonoBehaviour
     public void SetHeartRate(float newHeartRate)
     {
         heartRate = Mathf.Clamp(newHeartRate, 30f, 200f); // Clamp to realistic BPM values
+    }
+
+    // Trigger haptics for Meta Quest controllers
+    private void TriggerHaptic(float duration)
+    {
+        float pulseStrength = 0.8f; // Strength of vibration (0.0 to 1.0)
+        float pulseFrequency = 0.5f; // Frequency of vibration (used for low-level haptics)
+
+        // Trigger haptics on both controllers
+        OVRInput.SetControllerVibration(pulseFrequency, pulseStrength, OVRInput.Controller.LTouch); // Left controller
+        OVRInput.SetControllerVibration(pulseFrequency, pulseStrength, OVRInput.Controller.RTouch); // Right controller
+
+        // Stop haptics after the duration of one pulse
+        StartCoroutine(StopHaptics(duration));
+    }
+
+    private IEnumerator StopHaptics(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Stop haptics on both controllers
+        OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.LTouch);
+        OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
     }
 }
