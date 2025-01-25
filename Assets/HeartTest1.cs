@@ -13,6 +13,9 @@ public class HeartTest1 : MonoBehaviour
 
     private Vector3 initialScale;
     private bool isPulsing;
+    
+    [Header("Audio")]
+    public AudioSource heartBeat;
 
     void Start()
     {
@@ -34,6 +37,10 @@ public class HeartTest1 : MonoBehaviour
     private IEnumerator Pulse(float duration)
     {
         isPulsing = true;
+
+        // Play heartbeat sound
+        if (heartBeat != null)
+            heartBeat.Play();
 
         // Pulse out (quick grow)
         float elapsedTime = 0f;
