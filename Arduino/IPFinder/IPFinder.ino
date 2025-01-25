@@ -57,73 +57,80 @@ void loop() {
   WiFiClient client = server.available();
   loops++;
   
-  unsigned long currentTime = millis();  // Track current time for animations
+  unsigned long currentTime = millis();
+  updateHeartAnimation(currentTime);  // Update heart animation continuously
   
   if (client) {
     Serial.println("Client connected!");
     
     while (client.connected()) {
-      String packet = client.readStringUntil('\n');
-      packet.trim();  // Remove any whitespace or newline characters
-      
-      if (packet.length() == 0 || packet == "0") {
-        currentPacket = "...";
-      } else {
-        currentPacket = packet;
-      }
+      if (client.available()) {
+        String packet = client.readStringUntil('\n');
+        packet.trim();
+        
+        if (packet.length() == 0 || packet == "0") {
+          currentPacket = "...";
+        } else {
+          currentPacket = packet;
+        }
 
-      client.println("SHello World1E " + String(loops));
-      client.println("SHello World2E " + String(loops));
-      Serial.println("Printed to client " + packet);
+        client.println("SHello World1E " + String(loops));
+        client.println("SHello World2E " + String(loops));
+        Serial.println("Printed to client " + packet);
+      }
       
-      // Update display while connected
-      updateDisplay(currentTime);
-      delay(100);
+      currentTime = millis();
+      updateHeartAnimation(currentTime);  // Keep heart beating while connected
+      delay(25);
     }
     Serial.println("Client disconnected");
     client.stop();
   }
 
-  // Update display when not connected
-  updateDisplay(currentTime);
-  delay(25);  // Control animation speed
+  delay(25);
 }
 
-// New function to handle display updates
-void updateDisplay(unsigned long currentTime) {
-  display.clearDisplay();
+void updateHeartAnimation(unsigned long currentTime) {
+  static unsigned long lastAnimationUpdate = 0;
+  const unsigned long ANIMATION_INTERVAL = 25;
   
-  if (currentPacket == "..." || currentPacket == "") {
-    // Loading animation
-    static unsigned long lastDotUpdate = 0;
-    static int dots = 0;
+  if (currentTime - lastAnimationUpdate >= ANIMATION_INTERVAL) {
+    // Update heart animation scale
+    if (scaleIncreasing) {
+      currentScale += 0.04;
+      if (currentScale >= 1.0) {
+        currentScale = 1.0;
+        scaleIncreasing = false;
+      }
+    } else {
+      currentScale -= 0.04;
+      if (currentScale <= 0.6) {
+        currentScale = 0.6;
+        scaleIncreasing = true;
+      }
+    }
+    lastAnimationUpdate = currentTime;
     
-    if (currentTime - lastDotUpdate >= 500) {
-      dots = (dots + 1) % 4;
-      lastDotUpdate = currentTime;
-    }
+    // Update display
+    display.clearDisplay();
     
-    String loadingText = "LOAD";
-    for (int i = 0; i < dots; i++) {
-      loadingText += ".";
-    }
-    displayNumberAndText(loadingText, currentScale);
-  } else {
-    displayNumberAndText(currentPacket, currentScale);
-  }
-
-  // Update heart animation scale
-  if (scaleIncreasing) {
-    currentScale += 0.04;
-    if (currentScale >= 1.0) {
-      currentScale = 1.0;
-      scaleIncreasing = false;
-    }
-  } else {
-    currentScale -= 0.04;
-    if (currentScale <= 0.6) {
-      currentScale = 0.6;
-      scaleIncreasing = true;
+    if (currentPacket == "..." || currentPacket == "") {
+      // Loading animation
+      static unsigned long lastDotUpdate = 0;
+      static int dots = 0;
+      
+      if (currentTime - lastDotUpdate >= 500) {
+        dots = (dots + 1) % 4;
+        lastDotUpdate = currentTime;
+      }
+      
+      String loadingText = "LOAD";
+      for (int i = 0; i < dots; i++) {
+        loadingText += ".";
+      }
+      displayNumberAndText(loadingText, currentScale);
+    } else {
+      displayNumberAndText(currentPacket, currentScale);
     }
   }
 }
