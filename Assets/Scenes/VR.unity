@@ -1440,12 +1440,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5792326185789010280, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1017698943352573228}
-    - targetCorrespondingSourceObject: {fileID: 5792326185789010280, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1017698943352573234}
-    - targetCorrespondingSourceObject: {fileID: 5792326185789010280, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1017698943352573233}
     - targetCorrespondingSourceObject: {fileID: 5965078454125837647, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1017698943352573232}
@@ -1551,69 +1545,6 @@ MonoBehaviour:
   - componentID: 1
     component: {fileID: 1017698943352573231}
   _childViews: []
---- !u!114 &1017698943352573233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1017698943352573227}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9dc93c7e1ae142448d4a122be86ea8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _clip: {fileID: 0}
-  _controller: 2
-  _loop: 0
-  _amplitude: 1.04
-  _frequencyShift: 0
-  _priority: 128
---- !u!114 &1017698943352573234
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1017698943352573227}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd0b9921bce4eeb49bd05815b1135ac2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_InteractorSourceObject: {fileID: 0}
-  m_HapticImpulsePlayer: {fileID: 0}
-  m_PlaySelectEntered: 0
-  m_SelectEnteredData:
-    m_Amplitude: 0.5
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_PlaySelectExited: 0
-  m_SelectExitedData:
-    m_Amplitude: 0.5
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_PlaySelectCanceled: 0
-  m_SelectCanceledData:
-    m_Amplitude: 0.5
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_PlayHoverEntered: 0
-  m_HoverEnteredData:
-    m_Amplitude: 0.25
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_PlayHoverExited: 0
-  m_HoverExitedData:
-    m_Amplitude: 0.25
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_PlayHoverCanceled: 0
-  m_HoverCanceledData:
-    m_Amplitude: 0.25
-    m_Duration: 0.1
-    m_Frequency: 0
-  m_AllowHoverHapticsWhileSelecting: 0
 --- !u!1001 &2181405618988545911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1979,6 +1910,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3127728407676174907}
   - component: {fileID: 3127728407676174906}
+  - component: {fileID: 3127728407676174911}
+  - component: {fileID: 3127728407676174910}
   m_Layer: 0
   m_Name: XR Interaction Manager
   m_TagString: Untagged
@@ -1986,6 +1919,30 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &3127728407676174910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3127728407676174909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46458ef4105ba86439b643aeaecd21b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3127728407676174911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3127728407676174909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db4c75d3bd4ecc43ab70cf99f352409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3127728408198131880
 GameObject:
   m_ObjectHideFlags: 0

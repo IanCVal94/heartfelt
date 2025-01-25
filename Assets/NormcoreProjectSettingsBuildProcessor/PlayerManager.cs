@@ -3,47 +3,66 @@ using Normal.Realtime;
 
 public class PlayerManager : MonoBehaviour
 {
-    public static Vector3 client0Position = Vector3.zero;
-    public static Vector3 client1Position = Vector3.zero;
+    public static Vector3 client0HeadPosition = Vector3.zero;
+    public static Vector3 client1HeadPosition = Vector3.zero;
 
-    private Realtime realtime;
+    private RealtimeAvatarManager avatarManager;
 
     void Start()
     {
-        // Assign the Realtime component
-        realtime = FindObjectOfType<Realtime>();
+        // Find the RealtimeAvatarManager in the scene
+        avatarManager = FindObjectOfType<RealtimeAvatarManager>();
 
-        if (realtime == null)
+        if (avatarManager == null)
         {
-            Debug.LogError("Realtime component not found in the scene.");
+            Debug.LogError("RealtimeAvatarManager not found in the scene.");
         }
     }
 
     void Update()
     {
-        // Get all players with RealtimeTransform in the scene
-        RealtimeTransform[] players = FindObjectsOfType<RealtimeTransform>();
-
-        foreach (RealtimeTransform player in players)
+        if (avatarManager != null)
         {
-            if (player.ownerID == 0)
+            foreach (var avatarEntry in avatarManager.avatars)
             {
-                client0Position = player.transform.position;
-            }
-            else if (player.ownerID == 1)
-            {
-                client1Position = player.transform.position;
+                int clientID = avatarEntry.Key; // The clientID of this avatar
+                RealtimeAvatar avatar = avatarEntry.Value; // The RealtimeAvatar instance
+
+                if (avatar != null && avatar.gameObject != null)
+                {
+                    // Look for the "Head" GameObject within the avatar
+                    Transform headTransform = avatar.transform.Find("Head");
+                    if (headTransform != null)
+                    {
+                        Vector3 headPosition = headTransform.position;
+
+                        // Update positions based on client ID
+                        if (clientID == 0)
+                        {
+                            client0HeadPosition = headPosition;
+                        }
+                        else if (clientID == 1)
+                        {
+                            client1HeadPosition = headPosition;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Head object not found for client {clientID}");
+                    }
+                }
             }
         }
     }
 
+    // Public methods to access the player head positions
     public static Vector3 GetClient0Position()
     {
-        return client0Position;
+        return client0HeadPosition;
     }
 
     public static Vector3 GetClient1Position()
     {
-        return client1Position;
+        return client1HeadPosition;
     }
 }
