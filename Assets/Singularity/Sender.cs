@@ -17,6 +17,7 @@ public class Sender : MonoBehaviour
     {
         int heartRate = globalHyperate.GlobalHeartRate;
         string heartRateString = heartRate.ToString();
+        Debug.Log("Sending heart rate: " + heartRateString);
         singularity.sendMessage(heartRateString, new Sngty.DeviceSignature());
     }
 
