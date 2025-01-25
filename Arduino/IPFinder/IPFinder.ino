@@ -33,7 +33,15 @@ void setup() {
 }
 
 void initWiFi() {
+  // Disconnect any existing WiFi connection first
+  WiFi.disconnect(true);  // true = disable WiFi at the same time
+  delay(1000);  // Give it some time to disconnect fully
+
+  // Clear any previous WiFi config
   WiFi.mode(WIFI_STA);
+  WiFi.persistent(false);  // Don't save WiFi settings in flash
+
+  // Now attempt to connect
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
