@@ -1446,6 +1446,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5965078454125837647, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1017698943352573231}
+    - targetCorrespondingSourceObject: {fileID: 5965078454125837647, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1017698943352573238}
     - targetCorrespondingSourceObject: {fileID: 6435774841609749895, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
       insertIndex: -1
       addedObject: {fileID: 968993361}
@@ -1545,6 +1548,24 @@ MonoBehaviour:
   - componentID: 1
     component: {fileID: 1017698943352573231}
   _childViews: []
+--- !u!114 &1017698943352573238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017698943352573230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9dc93c7e1ae142448d4a122be86ea8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _clip: {fileID: 2460798210113038985, guid: c0edc09761b203846b8d6380f0711502, type: 3}
+  _controller: 2
+  _loop: 1
+  _amplitude: 1
+  _frequencyShift: 0
+  _priority: 128
 --- !u!1001 &2181405618988545911
 PrefabInstance:
   m_ObjectHideFlags: 0
