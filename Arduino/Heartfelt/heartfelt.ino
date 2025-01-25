@@ -136,39 +136,36 @@ void updateHeartAnimation(unsigned long currentTime) {
 }
 
 void displayNumberAndText(String text, float scale) {
-  // Clear is now handled in loop()
-  
   // Display text
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);  // Use the defined constant
+  display.setTextSize(5);
+  display.setTextColor(SSD1306_WHITE);
   
-  // Center the text
-  int16_t x1, y1;
-  uint16_t w, h;
-  display.getTextBounds(text.c_str(), 0, 0, &x1, &y1, &w, &h);  // Use c_str() for compatibility
-  int xpos = (SCREEN_WIDTH - w) / 2;
-  display.setCursor(xpos, 10);  // Moved text up slightly
+  // Left align the text with some padding
+  display.setCursor(5, 10);  // 5 pixels from left edge
   display.println(text);
   
-  // Calculate heart dimensions based on scale
-  int baseRadius = 8;
-  int radius = baseRadius * scale;
-  int centerY = 32;
-  int leftX = 95;
-  int rightX = 105;
+  // Only draw the heart if we're not in the loading state
+  if (!text.startsWith("LOAD")) {
+    // Calculate heart dimensions based on scale
+    int baseRadius = 8;
+    int radius = baseRadius * scale;
+    int centerY = 25;  // Moved up from 32
+    int leftX = 95;
+    int rightX = 105;
+    
+    int triangleTop = centerY + (radius * 0.5);
+    int triangleHeight = 24 * scale;
+    int triangleWidth = (rightX - leftX) + (2 * radius);
+    
+    display.fillCircle(leftX, centerY, radius, SSD1306_WHITE);
+    display.fillCircle(rightX, centerY, radius, SSD1306_WHITE);
+    display.fillTriangle(
+      leftX - radius, triangleTop,
+      rightX + radius, triangleTop,
+      (leftX + rightX) / 2, centerY + triangleHeight,
+      SSD1306_WHITE
+    );
+  }
   
-  int triangleTop = centerY + (radius * 0.5);
-  int triangleHeight = 24 * scale;
-  int triangleWidth = (rightX - leftX) + (2 * radius);
-  
-  display.fillCircle(leftX, centerY, radius, SSD1306_WHITE);
-  display.fillCircle(rightX, centerY, radius, SSD1306_WHITE);
-  display.fillTriangle(
-    leftX - radius, triangleTop,
-    rightX + radius, triangleTop,
-    (leftX + rightX) / 2, centerY + triangleHeight,
-    SSD1306_WHITE
-  );
-  
-  display.display();  // Make sure this is called
+  display.display();
 }
