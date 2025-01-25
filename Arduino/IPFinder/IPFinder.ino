@@ -57,6 +57,8 @@ void loop() {
   WiFiClient client = server.available();
   loops++;
   
+  unsigned long currentTime = millis();  // Track current time for animations
+  
   if (client) {
     Serial.println("Client connected!");
     
@@ -73,13 +75,22 @@ void loop() {
       client.println("SHello World1E " + String(loops));
       client.println("SHello World2E " + String(loops));
       Serial.println("Printed to client " + packet);
+      
+      // Update display while connected
+      updateDisplay(currentTime);
       delay(100);
     }
     Serial.println("Client disconnected");
     client.stop();
   }
 
-  // Display current number and animated heart
+  // Update display when not connected
+  updateDisplay(currentTime);
+  delay(25);  // Control animation speed
+}
+
+// New function to handle display updates
+void updateDisplay(unsigned long currentTime) {
   display.clearDisplay();
   
   if (currentPacket == "..." || currentPacket == "") {
@@ -87,9 +98,9 @@ void loop() {
     static unsigned long lastDotUpdate = 0;
     static int dots = 0;
     
-    if (millis() - lastDotUpdate >= 500) {
+    if (currentTime - lastDotUpdate >= 500) {
       dots = (dots + 1) % 4;
-      lastDotUpdate = millis();
+      lastDotUpdate = currentTime;
     }
     
     String loadingText = "LOAD";
@@ -115,8 +126,6 @@ void loop() {
       scaleIncreasing = true;
     }
   }
-  
-  delay(25);  // Control animation speed
 }
 
 void displayNumberAndText(String text, float scale) {
