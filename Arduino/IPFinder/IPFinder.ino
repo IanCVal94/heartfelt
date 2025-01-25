@@ -1,22 +1,28 @@
 #include <WiFi.h>
 
-const char* ssid = "heartfelt";
-const char* password = "heartfelt";
+const char* ssid = "MIT";      // Your WiFi network name
+const char* password = "i%739nKGFT";      // Your WiFi password
 
-WiFiServer server(80);
 int loops = 0;
+WiFiServer server(80);
+
 void setup() {
   Serial.begin(115200);
-  
-  // Create Access Point
-  WiFi.softAP(ssid, password);
-  Serial.println("Access Point Started2");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.softAPIP());
-  
-  server.begin();
+  initWiFi();
 }
 
+void initWiFi() {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi ..");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print('.');
+    delay(1000);
+  }
+  Serial.println(WiFi.localIP());
+
+  server.begin();
+}
 
 void loop() {
   WiFiClient client = server.available();
