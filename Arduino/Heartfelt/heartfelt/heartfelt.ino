@@ -49,12 +49,13 @@ void loop() {
   WiFiClient client = server.available();
   loops++;
   
-  if (client) {
-    Serial.println("Client connected!");
-    
-    while (client.connected()) {
+  // Handle any incoming client data without blocking
+  if (client && client.connected()) {
+    if (client.available()) {
       String packet = client.readStringUntil('\n');
       packet.trim();  // Remove any whitespace or newline characters
+      
+      Serial.println("Received packet: " + packet);  // Debug print
       
       if (packet.length() == 0 || packet == "0") {
         currentPacket = "...";
@@ -65,10 +66,7 @@ void loop() {
       client.println("SHello World1E " + String(loops));
       client.println("SHello World2E " + String(loops));
       Serial.println("Printed to client " + packet);
-      delay(100);
     }
-    Serial.println("Client disconnected");
-    client.stop();
   }
 
   // Display current number and animated heart
@@ -79,7 +77,7 @@ void loop() {
     static unsigned long lastDotUpdate = 0;
     static int dots = 0;
     
-    if (millis() - lastDotUpdate >= 500) {
+    if (millis() - lastDotUpdate >= 500) {  // Update dots every 500ms
       dots = (dots + 1) % 4;
       lastDotUpdate = millis();
     }
