@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Normal.Realtime;
+using OVR.Input;
 
 public class HeartBoxStrap : MonoBehaviour
 {
@@ -61,6 +62,14 @@ public class HeartBoxStrap : MonoBehaviour
 			}
 			
 
+		}
+		
+		if (OVRInput.GetDown(OVRInput.Button.Start))	
+		{
+			if(heart.!isHeldByStrap || heart.!isHeldByWatch)
+			{
+				heart.HeartBoxGrabbedStrap();
+			}
 		}
 	}
 

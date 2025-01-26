@@ -295,15 +295,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1565887663999455727, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2.5496254
       objectReference: {fileID: 0}
     - target: {fileID: 1565887663999455727, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1
+      value: 0.8498751
       objectReference: {fileID: 0}
     - target: {fileID: 1565887663999455727, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       propertyPath: m_LocalScale.z
-      value: 5
+      value: 4.2493753
       objectReference: {fileID: 0}
     - target: {fileID: 3084300495437852339, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -788,8 +788,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1740,6 +1740,11 @@ MonoBehaviour:
   heartBoxStrap: {fileID: 729545402}
   isHeldByWatch: 0
   isHeldByStrap: 0
+  leftHandHaptics: {fileID: 2053194405}
+  rightHandHaptics: {fileID: 228299337}
+  hapticsDistanceThreshold: 0.2
+  leftHand: {fileID: 2053194404}
+  rightHand: {fileID: 228299336}
   grabDistance: 0.1
   releaseDistance: 0.2
 --- !u!135 &1657976422
@@ -3705,7 +3710,7 @@ PrefabInstance:
       objectReference: {fileID: 3127728407676174906}
     - target: {fileID: 2190828208922718286, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2998152119438995280, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_IsActive

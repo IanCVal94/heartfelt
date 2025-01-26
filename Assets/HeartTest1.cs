@@ -1,9 +1,11 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.XR;
 using Normal.Realtime;
 using Normal.Realtime.Serialization;
-using Oculus.Interaction;
-using Oculus.Haptics;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
 
 public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 {
@@ -23,7 +25,6 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 	[Header("Audio")]
 	public AudioSource heartBeat;
 	
-	
 	[Header("Physics")]
 	Rigidbody rb;
 	public RealtimeTransform realTimeTransform;
@@ -33,8 +34,20 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 	public HeartBoxStrap heartBoxStrap;
 	public bool isHeldByWatch = false;
 	public bool isHeldByStrap = false;
-
-
+	
+	[Header("Haptics")]
+	public HapticImpulsePlayer leftHandHaptics;
+	public HapticImpulsePlayer rightHandHaptics;
+	float leftHandHeartDistance;
+	float rightHandHeartDistance;
+	public float hapticsDistanceThreshold = 0.2f;
+	float leftHapticsScalar;
+	float rightHapticsScalar;
+	
+	public GameObject leftHand;
+	public GameObject rightHand;
+	
+	[Header("Grabbing")]
 	// Distance thresholds for grabbing and releasing
 	public float grabDistance = 0.1f;   // Distance to "grab" the heart
 	public float releaseDistance = 0.2f; // Distance to "release" the heart
@@ -50,7 +63,7 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 
 		// Ensure the Heart has a RealtimeTransform component
 		realTimeTransform = GetComponent<RealtimeTransform>();
-		
+	
 	}
 
 	void Update()
@@ -83,6 +96,12 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 			transform.position = heartBoxStrap.transform.position;
 			transform.rotation = heartBoxStrap.transform.rotation;
 		}
+		
+		// Check distance to heart and both hands
+		leftHandHeartDistance = Vector3.Distance(leftHand.transform.position, transform.position);
+		rightHandHeartDistance = Vector3.Distance(rightHand.transform.position, transform.position);
+		
+		
 	}
 
 	private IEnumerator Pulse(float duration)
@@ -95,8 +114,24 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 			heartBeat.Play();
 		}
 
+
 		// Trigger haptics
-		TriggerHaptic(duration);
+		
+		if(leftHandHeartDistance <= hapticsDistanceThreshold)
+		{
+			leftHapticsScalar = 1 - (leftHandHeartDistance / hapticsDistanceThreshold);
+			leftHandHaptics.SendHapticImpulse(1 * leftHapticsScalar, duration * 0.3f);
+		}
+		if(rightHandHeartDistance <= hapticsDistanceThreshold)
+		{
+			rightHapticsScalar = 1 - (rightHandHeartDistance / hapticsDistanceThreshold);
+			rightHandHaptics.SendHapticImpulse(1 * rightHapticsScalar, duration * 0.3f);
+		}
+		
+		
+	
+		
+		
 
 		// Pulse out (quick grow)
 		float elapsedTime = 0f;
@@ -108,6 +143,8 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 			heartVisuals.localScale = initialScale * Mathf.Lerp(minScale, maxScale, t);
 			yield return null;
 		}
+		
+
 
 		// Pulse in (slower shrink)
 		elapsedTime = 0f;
@@ -129,29 +166,6 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 	public void SetHeartRate(float newHeartRate)
 	{
 		heartRate = Mathf.Clamp(newHeartRate, 30f, 200f); // Clamp to realistic BPM values
-	}
-
-	// Trigger haptics for Meta Quest controllers
-	private void TriggerHaptic(float duration)
-	{
-		float pulseStrength = 0.8f; // Strength of vibration (0.0 to 1.0)
-		float pulseFrequency = 0.5f; // Frequency of vibration (used for low-level haptics)
-
-		// Trigger haptics on both controllers
-		OVRInput.SetControllerVibration(pulseFrequency, pulseStrength, OVRInput.Controller.LTouch); // Left controller
-		OVRInput.SetControllerVibration(pulseFrequency, pulseStrength, OVRInput.Controller.RTouch); // Right controller
-
-		// Stop haptics after the duration of one pulse
-		StartCoroutine(StopHaptics(duration));
-	}
-
-	private IEnumerator StopHaptics(float duration)
-	{
-		yield return new WaitForSeconds(duration);
-
-		// Stop haptics on both controllers
-		OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.LTouch);
-		OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
 	}
 
 	public void HeartBoxGrabbedWatch()
@@ -303,6 +317,9 @@ public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 		model.isGrabbed = isGrabbed;
 	}
 	
+	
+	
+
 	
 	
 	
