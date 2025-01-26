@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class HueChanger : MonoBehaviour
+public class ColorChanger : MonoBehaviour
 {
     [SerializeField] private Renderer targetRenderer; // Renderer of the GameObject to change color
-    [SerializeField] private float value = globalHyperate.GlobalHeartRate; // Value to evaluate (can be changed dynamically)
+    [SerializeField] private float value = 50f; // Value to evaluate (can be changed dynamically)
 
     private Color darkRed = new Color(0.5f, 0f, 0f); // Dark red
     private Color brightRed = new Color(1f, 0f, 0f); // Bright red
@@ -11,7 +11,6 @@ public class HueChanger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        value = globalHyperate.GlobalHeartRate;
         // Clamp the value to ensure it stays within range
         float clampedValue = Mathf.Clamp(value, 50f, 120f);
 
@@ -26,5 +25,11 @@ public class HueChanger : MonoBehaviour
         {
             targetRenderer.material.color = newColor;
         }
+    }
+
+    // Public method to update the value (optional)
+    public void SetValue(float newValue)
+    {
+        value = newValue;
     }
 }
