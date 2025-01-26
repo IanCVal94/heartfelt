@@ -5,6 +5,27 @@ TagManager:
   serializedVersion: 2
   tags:
   - Heart
+  - QDSUIToggleBorderlessButton
+  - QDSUISharedThemeColor
+  - QDSUIIcon
+  - QDSUIBorderlessButton
+  - QDSUIAccentColor
+  - QDSUISecondaryButton
+  - QDSUIToggleButton
+  - QDSUITextSecondaryColor
+  - Locomotion
+  - PassThrough
+  - PassThroughButton
+  - LocoButton
+  - LocoText
+  - SamplesInfoPanel
+  - QDSUIDestructiveButton
+  - QDSUIPrimaryButton
+  - QDSUIToggleCheckboxRadio
+  - QDSUIToggleSwitch
+  - QDSUITooltip
+  - QDSUITextInputField
+  - QDSUISection
   layers:
   - Default
   - TransparentFX
@@ -14,7 +35,7 @@ TagManager:
   - UI
   - Spawner Contact
   - Placeable Surface
-  - 
+  - PostProcessing
   - 
   - 
   - 
