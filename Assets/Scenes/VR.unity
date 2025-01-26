@@ -1392,6 +1392,8 @@ MonoBehaviour:
   _components:
   - componentID: 1
     component: {fileID: 1657976414}
+  - componentID: 2
+    component: {fileID: 1657976419}
   _childViews: []
 --- !u!4 &1657976416 stripped
 Transform:
@@ -1415,6 +1417,11 @@ MonoBehaviour:
   maxScale: {x: 1.1, y: 1.1, z: 1.1}
   smoothness: 0.5
   heartBeat: {fileID: 1965799221}
+  realTimeTransform: {fileID: 0}
+  heartBox: {fileID: 0}
+  isHeldByBox: 0
+  grabDistance: 0.1
+  releaseDistance: 0.2
 --- !u!1 &1815318735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1490,7 +1497,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 5.45e-43, y: 6.960822e-25, z: 5.45e-43, w: 6.994167e-25}
+  m_BoundingSphereOverride: {x: 1.2174e-41, y: 0, z: 0, w: 1.0588973e+13}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -2521,6 +2528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46458ef4105ba86439b643aeaecd21b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetGameObject: {fileID: 0}
 --- !u!114 &3127728407676174911
 MonoBehaviour:
   m_ObjectHideFlags: 0
