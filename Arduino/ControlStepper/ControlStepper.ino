@@ -15,7 +15,7 @@ AccelStepper stepperB(AccelStepper::DRIVER, STEP_PIN_B, DIR_PIN_B);
 
 // Define step sizes for each stepper
 // backstroke multiplier is because the backstroke is less than the forward stroke due to pressure assistance
-const float BACKSTROKE_MULTIPLIER_A = 0.99;
+const float BACKSTROKE_MULTIPLIER_A = 1;
 const float BACKSTROKE_MULTIPLIER_B = 1;
 const int STEPPER_A_STEPS = 500;
 const int STEPPER_B_STEPS = 1000;
@@ -33,9 +33,9 @@ void setup() {
 
   // Set max speed and acceleration
   stepperA.setMaxSpeed(8000);
-  stepperA.setAcceleration(4000);
-  stepperB.setMaxSpeed(12000);
-  stepperB.setAcceleration(7000);
+  stepperA.setAcceleration(8000);
+  stepperB.setMaxSpeed(10000);
+  stepperB.setAcceleration(10000);
 
   Serial.begin(9600);
 }
