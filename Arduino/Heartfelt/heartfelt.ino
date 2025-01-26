@@ -183,8 +183,16 @@ void drawHeart(float scale) {
 // }
 
 void updateMotorSpeed(int bpm) {
-    // Calculate speed multiplier (0.0 to 1.0)
-    float speedMultiplier = bpm >= 100 ? 1.0 : (bpm / 100.0);
+    float speedMultiplier;
+    
+    if (bpm <= 70) {
+        speedMultiplier = 0.2;  // 20% speed
+    } else if (bpm >= 90) {
+        speedMultiplier = 1.0;  // 100% speed
+    } else {
+        // Linear interpolation between 20% and 100% for BPM between 70 and 90
+        speedMultiplier = 0.2 + (bpm - 70) * (0.8 / 20);
+    }
     
     // Base speeds
     const float baseSpeedA = 8000;
