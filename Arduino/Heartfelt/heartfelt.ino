@@ -18,10 +18,6 @@ const char* password = "tacocat4642";      // Your WiFi password
 
 
 
-// Create two instances of AccelStepper
-AccelStepper stepperA(AccelStepper::DRIVER, STEP_PIN_A, DIR_PIN_A);
-AccelStepper stepperB(AccelStepper::DRIVER, STEP_PIN_B, DIR_PIN_B);
-
 int loops = 0;
 WiFiServer server(80);
 
@@ -45,12 +41,6 @@ int currentPosition = 0;
 // Add this with the other global variables
 int currentBPM = DEFAULT_BPM;  // Global BPM variable
 
-// Add these global variables after the other definitions
-const int STEPPER_A_RANGE = 500;
-const int STEPPER_B_RANGE = 1000;
-bool movingToMax = true;
-int targetA = -STEPPER_A_RANGE;  // Negative for stepper A
-int targetB = STEPPER_B_RANGE;
 
 // Add at the top with other globals
 unsigned long lastLoopUpdate = 0;
@@ -68,24 +58,7 @@ void setup() {
   display.clearDisplay();
   initWiFi();
 
-  // Configure microstepping pins
-  pinMode(MS1_PIN, OUTPUT);
-  pinMode(MS2_PIN, OUTPUT);
-  pinMode(MS3_PIN, OUTPUT);
-  
-  // Set 1/16 microstepping
-  digitalWrite(MS1_PIN, HIGH);
-  digitalWrite(MS2_PIN, HIGH);
-  digitalWrite(MS3_PIN, HIGH);
 
-  // Update stepper configuration for quick pulses
-  stepperA.setMaxSpeed(4000);  // Faster max speed for quick movements
-  stepperA.setAcceleration(8000);  // Higher acceleration for responsive pulses
-  stepperA.setSpeed(0);
-  
-  stepperB.setMaxSpeed(4000);
-  stepperB.setAcceleration(8000);
-  stepperB.setSpeed(0);
 }
 
 void initWiFi() {
@@ -120,7 +93,7 @@ void loop() {
     loops++;
     
     updateHeartAnimation(currentTime);
-    updateStepperMotion(currentTime);
+
     
     if (client) {
       Serial.println("Client connected!");
@@ -236,26 +209,3 @@ void displayNumberAndText(String text, float scale) {
   display.display();
 }
 
-void updateStepperMotion(unsigned long currentTime) {
-  // Check if both steppers have reached their targets
-  if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0) {
-    // Switch direction
-    movingToMax = !movingToMax;
-    
-    if (movingToMax) {
-      targetA = -STEPPER_A_RANGE;  // Negative for stepper A
-      targetB = STEPPER_B_RANGE;
-    } else {
-      targetA = 0;
-      targetB = 0;
-    }
-    
-    // Set new targets
-    stepperA.moveTo(targetA);
-    stepperB.moveTo(targetB);
-  }
-  
-  // Run the steppers
-  stepperA.run();
-  stepperB.run();
-}
