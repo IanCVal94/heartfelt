@@ -16,9 +16,7 @@ const char* password = "tacocat4642";      // Your WiFi password
 #define MS2_PIN 20
 #define MS3_PIN 19
 
-// Create two instances of AccelStepper
-AccelStepper stepperA(AccelStepper::DRIVER, STEP_PIN_A, DIR_PIN_A);
-AccelStepper stepperB(AccelStepper::DRIVER, STEP_PIN_B, DIR_PIN_B);
+
 
 int loops = 0;
 WiFiServer server(80);
@@ -43,6 +41,83 @@ int currentPosition = 0;
 // Add this with the other global variables
 int currentBPM = DEFAULT_BPM;  // Global BPM variable
 
+
+// Add at the top with other globals
+unsigned long lastLoopUpdate = 0;
+const unsigned long LOOP_INTERVAL = 25;  // 25ms interval if needed
+
+// Add timer interrupt variables
+volatile int currentPeriodA = 1000;  // Period for stepper A
+volatile int currentPeriodB = 1000;  // Period for stepper B
+volatile bool stepPinStateA = false;
+volatile bool stepPinStateB = false;
+volatile long stepCountA = 0;
+volatile long stepCountB = 0;
+volatile bool directionA = true;  // true = forward, false = backward
+volatile bool directionB = true;
+
+// Timer interrupt handlers
+void ARDUINO_ISR_ATTR onTimer0() {
+  stepPinStateA = !stepPinStateA;
+  digitalWrite(STEP_PIN_A, stepPinStateA);
+  
+  if (stepPinStateA) {  // Count only on rising edge
+    if (directionA) stepCountA++; else stepCountA--;
+    if (abs(stepCountA) >= PULSE_STEPS) {
+      directionA = !directionA;
+      digitalWrite(DIR_PIN_A, directionA);
+      stepCountA = 0;
+    }
+  }
+}
+
+void ARDUINO_ISR_ATTR onTimer1() {
+  stepPinStateB = !stepPinStateB;
+  digitalWrite(STEP_PIN_B, stepPinStateB);
+  
+  if (stepPinStateB) {  // Count only on rising edge
+    if (directionB) stepCountB++; else stepCountB--;
+    if (abs(stepCountB) >= PULSE_STEPS) {
+      directionB = !directionB;
+      digitalWrite(DIR_PIN_B, directionB);
+      stepCountB = 0;
+    }
+  }
+}
+
+void setupTimers() {
+  // Configure pins
+  pinMode(STEP_PIN_A, OUTPUT);
+  pinMode(DIR_PIN_A, OUTPUT);
+  pinMode(STEP_PIN_B, OUTPUT);
+  pinMode(DIR_PIN_B, OUTPUT);
+  pinMode(MS1_PIN, OUTPUT);
+  pinMode(MS2_PIN, OUTPUT);
+  pinMode(MS3_PIN, OUTPUT);
+  
+  // Configure microstepping
+  digitalWrite(MS1_PIN, LOW);
+  digitalWrite(MS2_PIN, LOW);
+  digitalWrite(MS3_PIN, LOW);
+  
+  // Set initial directions
+  digitalWrite(DIR_PIN_A, directionA);
+  digitalWrite(DIR_PIN_B, directionB);
+  
+  // Configure timer interrupts - using 1MHz base frequency
+  hw_timer_t *timer0 = timerBegin(1000000);  // 1MHz timer frequency
+  hw_timer_t *timer1 = timerBegin(1000000);  // 1MHz timer frequency
+  
+  // Attach interrupt handlers
+  timerAttachInterrupt(timer0, &onTimer0);
+  timerAttachInterrupt(timer1, &onTimer1);
+  
+  // Set alarm to trigger at specified intervals (in microseconds)
+  // true for auto-reload, 0 for unlimited repeats
+  timerAlarm(timer0, currentPeriodA, true, 0);
+  timerAlarm(timer1, currentPeriodB, true, 0);
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(9, 8);  // Set SDA to GPIO9, SCL to GPIO8
@@ -55,24 +130,7 @@ void setup() {
   display.clearDisplay();
   initWiFi();
 
-  // Configure microstepping pins
-  pinMode(MS1_PIN, OUTPUT);
-  pinMode(MS2_PIN, OUTPUT);
-  pinMode(MS3_PIN, OUTPUT);
-  
-  // Set 1/16 microstepping
-  digitalWrite(MS1_PIN, HIGH);
-  digitalWrite(MS2_PIN, HIGH);
-  digitalWrite(MS3_PIN, HIGH);
-
-  // Update stepper configuration for quick pulses
-  stepperA.setMaxSpeed(4000);  // Faster max speed for quick movements
-  stepperA.setAcceleration(8000);  // Higher acceleration for responsive pulses
-  stepperA.setSpeed(0);
-  
-  stepperB.setMaxSpeed(4000);
-  stepperB.setAcceleration(8000);
-  stepperB.setSpeed(0);
+  setupTimers();  // Add this line to setup()
 }
 
 void initWiFi() {
@@ -97,43 +155,50 @@ void initWiFi() {
 }
 
 void loop() {
-  WiFiClient client = server.available();
-  loops++;
-  
   unsigned long currentTime = millis();
-  updateHeartAnimation(currentTime);
-  updateStepperMotion(currentTime);
   
-  if (client) {
-    Serial.println("Client connected!");
+  // Only process updates every LOOP_INTERVAL milliseconds
+  if (currentTime - lastLoopUpdate >= LOOP_INTERVAL) {
+    lastLoopUpdate = currentTime;
     
-    while (client.connected()) {
-      if (client.available()) {
-        String packet = client.readStringUntil('\n');
-        packet.trim();
-        
-        if (packet.length() == 0 || packet == "0") {
-          currentPacket = "...";
-        } else {
-          currentPacket = packet;
-          // Update the BPM when we receive a valid packet
-          currentBPM = packet.toInt();
-        }
+    WiFiClient client = server.available();
+    loops++;
+    
+    updateHeartAnimation(currentTime);
 
-        client.println("SHello World1E " + String(loops));
-        client.println("SHello World2E " + String(loops));
-        Serial.println("Printed to client " + packet);
-      }
+    
+    if (client) {
+      Serial.println("Client connected!");
       
-      currentTime = millis();
-      updateHeartAnimation(currentTime);  // Keep heart beating while connected
-      delay(25);
-    }
-    Serial.println("Client disconnected");
-    client.stop();
-  }
+      while (client.connected()) {
+        currentTime = millis();
+        if (currentTime - lastLoopUpdate >= LOOP_INTERVAL) {
+          lastLoopUpdate = currentTime;
+          
+          if (client.available()) {
+            String packet = client.readStringUntil('\n');
+            packet.trim();
+            
+            if (packet.length() == 0 || packet == "0") {
+              currentPacket = "...";
+            } else {
+              currentPacket = packet;
+              // Update the BPM when we receive a valid packet
+              currentBPM = packet.toInt();
+            }
 
-  delay(25);
+            client.println("SHello World1E " + String(loops));
+            client.println("SHello World2E " + String(loops));
+            Serial.println("Printed to client " + packet);
+          }
+          
+          updateHeartAnimation(currentTime);
+        }
+      }
+      Serial.println("Client disconnected");
+      client.stop();
+    }
+  }
 }
 
 void updateHeartAnimation(unsigned long currentTime) {
@@ -216,29 +281,3 @@ void displayNumberAndText(String text, float scale) {
   display.display();
 }
 
-void updateStepperMotion(unsigned long currentTime) {
-  // Calculate time between pulses based on BPM
-  unsigned long pulseInterval = 60000 / currentBPM;  // Changed from BPM to currentBPM
-  
-  if (currentTime - lastPulseTime >= pulseInterval) {
-    // Start new pulse
-    pulsing = true;
-    lastPulseTime = currentTime;
-    
-    // Move steppers in opposite directions
-    stepperA.moveTo(currentPosition + PULSE_STEPS);
-    stepperB.moveTo(currentPosition - PULSE_STEPS);
-  }
-  
-  // Run the steppers
-  if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0 && pulsing) {
-    // Reset position for next pulse
-    currentPosition = 0;
-    stepperA.setCurrentPosition(0);
-    stepperB.setCurrentPosition(0);
-    pulsing = false;
-  }
-  
-  stepperA.run();
-  stepperB.run();
-}
