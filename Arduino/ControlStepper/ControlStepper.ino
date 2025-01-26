@@ -23,10 +23,10 @@ void setup() {
   digitalWrite(MS3_PIN, LOW);
 
   // Set max speed and acceleration
-  stepperA.setMaxSpeed(1000);
-  stepperA.setAcceleration(2000);
-  stepperB.setMaxSpeed(1000);
-  stepperB.setAcceleration(2000);
+  stepperA.setMaxSpeed(12000);
+  stepperA.setAcceleration(7000);
+  stepperB.setMaxSpeed(12000);
+  stepperB.setAcceleration(7000);
 
   Serial.begin(9600);
 }
