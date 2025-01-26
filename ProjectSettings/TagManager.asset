@@ -4,7 +4,31 @@
 TagManager:
   serializedVersion: 2
   tags:
+<<<<<<< Updated upstream
   - Heart
+=======
+  - QDSUIToggleBorderlessButton
+  - QDSUISharedThemeColor
+  - QDSUIIcon
+  - QDSUIBorderlessButton
+  - QDSUIAccentColor
+  - QDSUISecondaryButton
+  - QDSUIToggleButton
+  - QDSUITextSecondaryColor
+  - Locomotion
+  - PassThrough
+  - PassThroughButton
+  - LocoButton
+  - LocoText
+  - SamplesInfoPanel
+  - QDSUIDestructiveButton
+  - QDSUIPrimaryButton
+  - QDSUIToggleCheckboxRadio
+  - QDSUIToggleSwitch
+  - QDSUITooltip
+  - QDSUITextInputField
+  - QDSUISection
+>>>>>>> Stashed changes
   layers:
   - Default
   - TransparentFX
@@ -14,7 +38,7 @@ TagManager:
   - UI
   - Spawner Contact
   - Placeable Surface
-  - 
+  - PostProcessing
   - 
   - 
   - 
