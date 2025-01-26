@@ -1,46 +1,30 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HueChanger : MonoBehaviour
 {
-    [Range(50, 120)]
-    public float value = globalHyperate.GlobalHeartRate; // Value to determine the hue
+    [SerializeField] private Renderer targetRenderer; // Renderer of the GameObject to change color
+    [SerializeField] private float value = globalHyperate.GlobalHeartRate; // Value to evaluate (can be changed dynamically)
 
-    private Renderer objectRenderer;
-
-    // Colors for the range
     private Color darkRed = new Color(0.5f, 0f, 0f); // Dark red
     private Color brightRed = new Color(1f, 0f, 0f); // Bright red
 
-    void Start()
-    {
-        // Get the Renderer component of the game object
-        objectRenderer = GetComponent<Renderer>();
-
-        if (objectRenderer == null)
-        {
-            Debug.LogError("Renderer component not found on the object. Please attach this script to an object with a material.");
-        }
-    }
-
+    // Update is called once per frame
     void Update()
     {
-        // Update the material color based on the value
         value = globalHyperate.GlobalHeartRate;
-        UpdateColor();
-    }
+        // Clamp the value to ensure it stays within range
+        float clampedValue = Mathf.Clamp(value, 50f, 120f);
 
-    private void UpdateColor()
-    {
-        if (objectRenderer != null && objectRenderer.material != null)
+        // Calculate the t parameter for Lerp (Linear Interpolation)
+        float t = (clampedValue - 50f) / (120f - 50f);
+
+        // Interpolate between darkRed and brightRed based on the value
+        Color newColor = Color.Lerp(darkRed, brightRed, t);
+
+        // Apply the color to the material of the target renderer
+        if (targetRenderer != null && targetRenderer.material != null)
         {
-            // Interpolate the color based on the value
-            float t = Mathf.InverseLerp(50f, 120f, value); // Normalize the value to a range of 0 to 1
-            Color currentColor = Color.Lerp(darkRed, brightRed, t);
-
-            // Apply the color to the object's material
-            objectRenderer.material.color = currentColor;
+            targetRenderer.material.color = newColor;
         }
     }
 }
