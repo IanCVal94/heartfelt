@@ -16,6 +16,8 @@ const char* password = "tacocat4642";      // Your WiFi password
 #define MS2_PIN 20
 #define MS3_PIN 19
 
+
+
 // Create two instances of AccelStepper
 AccelStepper stepperA(AccelStepper::DRIVER, STEP_PIN_A, DIR_PIN_A);
 AccelStepper stepperB(AccelStepper::DRIVER, STEP_PIN_B, DIR_PIN_B);
@@ -42,6 +44,17 @@ int currentPosition = 0;
 
 // Add this with the other global variables
 int currentBPM = DEFAULT_BPM;  // Global BPM variable
+
+// Add these global variables after the other definitions
+const int STEPPER_A_RANGE = 500;
+const int STEPPER_B_RANGE = 1000;
+bool movingToMax = true;
+int targetA = -STEPPER_A_RANGE;  // Negative for stepper A
+int targetB = STEPPER_B_RANGE;
+
+// Add at the top with other globals
+unsigned long lastLoopUpdate = 0;
+const unsigned long LOOP_INTERVAL = 25;  // 25ms interval if needed
 
 void setup() {
   Serial.begin(115200);
@@ -97,43 +110,50 @@ void initWiFi() {
 }
 
 void loop() {
-  WiFiClient client = server.available();
-  loops++;
-  
   unsigned long currentTime = millis();
-  updateHeartAnimation(currentTime);
-  updateStepperMotion(currentTime);
   
-  if (client) {
-    Serial.println("Client connected!");
+  // Only process updates every LOOP_INTERVAL milliseconds
+  if (currentTime - lastLoopUpdate >= LOOP_INTERVAL) {
+    lastLoopUpdate = currentTime;
     
-    while (client.connected()) {
-      if (client.available()) {
-        String packet = client.readStringUntil('\n');
-        packet.trim();
-        
-        if (packet.length() == 0 || packet == "0") {
-          currentPacket = "...";
-        } else {
-          currentPacket = packet;
-          // Update the BPM when we receive a valid packet
-          currentBPM = packet.toInt();
-        }
-
-        client.println("SHello World1E " + String(loops));
-        client.println("SHello World2E " + String(loops));
-        Serial.println("Printed to client " + packet);
-      }
+    WiFiClient client = server.available();
+    loops++;
+    
+    updateHeartAnimation(currentTime);
+    updateStepperMotion(currentTime);
+    
+    if (client) {
+      Serial.println("Client connected!");
       
-      currentTime = millis();
-      updateHeartAnimation(currentTime);  // Keep heart beating while connected
-      delay(25);
-    }
-    Serial.println("Client disconnected");
-    client.stop();
-  }
+      while (client.connected()) {
+        currentTime = millis();
+        if (currentTime - lastLoopUpdate >= LOOP_INTERVAL) {
+          lastLoopUpdate = currentTime;
+          
+          if (client.available()) {
+            String packet = client.readStringUntil('\n');
+            packet.trim();
+            
+            if (packet.length() == 0 || packet == "0") {
+              currentPacket = "...";
+            } else {
+              currentPacket = packet;
+              // Update the BPM when we receive a valid packet
+              currentBPM = packet.toInt();
+            }
 
-  delay(25);
+            client.println("SHello World1E " + String(loops));
+            client.println("SHello World2E " + String(loops));
+            Serial.println("Printed to client " + packet);
+          }
+          
+          updateHeartAnimation(currentTime);
+        }
+      }
+      Serial.println("Client disconnected");
+      client.stop();
+    }
+  }
 }
 
 void updateHeartAnimation(unsigned long currentTime) {
@@ -217,28 +237,25 @@ void displayNumberAndText(String text, float scale) {
 }
 
 void updateStepperMotion(unsigned long currentTime) {
-  // Calculate time between pulses based on BPM
-  unsigned long pulseInterval = 60000 / currentBPM;  // Changed from BPM to currentBPM
-  
-  if (currentTime - lastPulseTime >= pulseInterval) {
-    // Start new pulse
-    pulsing = true;
-    lastPulseTime = currentTime;
+  // Check if both steppers have reached their targets
+  if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0) {
+    // Switch direction
+    movingToMax = !movingToMax;
     
-    // Move steppers in opposite directions
-    stepperA.moveTo(currentPosition + PULSE_STEPS);
-    stepperB.moveTo(currentPosition - PULSE_STEPS);
+    if (movingToMax) {
+      targetA = -STEPPER_A_RANGE;  // Negative for stepper A
+      targetB = STEPPER_B_RANGE;
+    } else {
+      targetA = 0;
+      targetB = 0;
+    }
+    
+    // Set new targets
+    stepperA.moveTo(targetA);
+    stepperB.moveTo(targetB);
   }
   
   // Run the steppers
-  if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0 && pulsing) {
-    // Reset position for next pulse
-    currentPosition = 0;
-    stepperA.setCurrentPosition(0);
-    stepperB.setCurrentPosition(0);
-    pulsing = false;
-  }
-  
   stepperA.run();
   stepperB.run();
 }
