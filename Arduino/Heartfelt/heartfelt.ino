@@ -43,18 +43,17 @@ float currentScale = 1.0;
 // const unsigned long ANIMATION_INTERVAL = 100;  // 25ms between updates
 
 // Modify these variables after the existing global variables
-#define DEFAULT_BPM 60
 int currentPosition = 0;
 
 // Add this with the other global variables
-int currentBPM = DEFAULT_BPM;  // Global BPM variable
+int currentBPM = 0;  // Initialize to 0 instead of DEFAULT_BPM
 
 // Add these global variables
 String currentPacket = "";
 bool newPacketAvailable = false;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(1000);  // Add delay to allow Serial to initialize
   Serial.println("\nStarting up...");  // Add initial message
   
@@ -84,7 +83,9 @@ void setup() {
   // Clear display and draw heart once (it won't change)
   display.clearDisplay();
   drawHeart(1.0);  // Draw at full scale
-  displayBPM(currentBPM);  // Add initial BPM display
+  
+
+  
   display.display();
   
   // Set text properties for any debug text you might want to show
@@ -98,6 +99,8 @@ void setup() {
   stepperB.setAcceleration(20000);
 
   initWiFi();
+    // Instead, display the IP after WiFi connection
+  displayIP();
 }
 
 void initWiFi() {
@@ -242,44 +245,49 @@ void updateMotorSpeed(int bpm) {
 }
 
 void moveMotors() {
-  // Add this at the start of moveMotors to ensure BPM is always displayed
-  if (newPacketAvailable) {
-    displayBPM(currentBPM);
-    updateMotorSpeed(currentBPM);
-  }
+    // Only show BPM if we have an active client connection
+    if (client.connected()) {
+        if (newPacketAvailable) {
+            displayBPM(currentBPM);
+            updateMotorSpeed(currentBPM);
+        }
+    } else {
+        // Show IP when no client is connected
+        displayIP();
+    }
 
-  // Phase 0: Fill chamber A and confirm it's full
-  if (heartbeatPhase == 0) {
-    if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
-      stepperA.moveTo(-500);  // 8x increase from -500
-      heartbeatPhase = 1;
+    // Phase 0: Fill chamber A and confirm it's full
+    if (heartbeatPhase == 0) {
+        if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
+            stepperA.moveTo(-500);  // 8x increase from -500
+            heartbeatPhase = 1;
+        }
     }
-  }
-  // Phase 1: Wait for A to be completely full before starting next phase
-  else if (heartbeatPhase == 1) {
-    if (stepperA.currentPosition() == -500) {
-      stepperA.moveTo(0);     // Start emptying A
-      stepperB.moveTo(1000);  // 8x increase from 1000
-      heartbeatPhase = 2;
+    // Phase 1: Wait for A to be completely full before starting next phase
+    else if (heartbeatPhase == 1) {
+        if (stepperA.currentPosition() == -500) {
+            stepperA.moveTo(0);     // Start emptying A
+            stepperB.moveTo(1000);  // 8x increase from 1000
+            heartbeatPhase = 2;
+        }
     }
-  }
-  // Phase 2: Wait for both A to empty AND B to fill completely
-  else if (heartbeatPhase == 2) {
-    if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 1000) {
-      stepperB.moveTo(0);     // Start emptying B
-      heartbeatPhase = 3;
+    // Phase 2: Wait for both A to empty AND B to fill completely
+    else if (heartbeatPhase == 2) {
+        if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 1000) {
+            stepperB.moveTo(0);     // Start emptying B
+            heartbeatPhase = 3;
+        }
     }
-  }
-  // Phase 3: Wait for B to completely empty before starting next cycle
-  else if (heartbeatPhase == 3) {
-    if (stepperB.currentPosition() == 0) {
-      heartbeatPhase = 0;     // Reset to start of cycle
+    // Phase 3: Wait for B to completely empty before starting next cycle
+    else if (heartbeatPhase == 3) {
+        if (stepperB.currentPosition() == 0) {
+            heartbeatPhase = 0;     // Reset to start of cycle
+        }
     }
-  }
 
-  // Run both motors
-  stepperA.run();
-  stepperB.run();
+    // Run both motors
+    stepperA.run();
+    stepperB.run();
 }
 
 void displayBPM(int bpm) {
@@ -303,4 +311,20 @@ void displayBPM(int bpm) {
     }
     
     display.display();  // Update the display
+}
+
+// Add new function to display IP
+void displayIP() {
+    display.clearDisplay();
+    drawHeart(1.0);
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(5, 5);
+    if (WiFi.status() == WL_CONNECTED) {
+        display.print("IP: ");
+        display.println(WiFi.localIP());
+    } else {
+        display.println("Not Connected");
+    }
+    display.display();
 }

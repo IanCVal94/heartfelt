@@ -431,6 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ac041421c13fdc4ca09d29971d1c29f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 0}
   value: 80
 --- !u!1 &439588099
 GameObject:
@@ -836,7 +837,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   connectionType: 1
-  clientIP: 172.20.10.12
+  clientIP: 172.20.10.2
   clientPort: 80
 --- !u!4 &1368451606
 Transform:
@@ -1377,6 +1378,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   volume: {fileID: 1593473466}
+  parentObject: {fileID: 0}
 --- !u!1 &1657976413 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1084091470699946726, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
@@ -1443,13 +1445,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   heartRate: 60
-  minScale: {x: 0.9, y: 0.9, z: 0.9}
-  maxScale: {x: 1.1, y: 1.1, z: 1.1}
+  minScale: 0.9
+  maxScale: 1.1
   smoothness: 0.5
+  heartVisuals: {fileID: 0}
   heartBeat: {fileID: 1965799221}
   realTimeTransform: {fileID: 0}
-  heartBox: {fileID: 0}
-  isHeldByBox: 0
+  heartBoxWatch: {fileID: 0}
+  heartBoxStrap: {fileID: 0}
+  isHeldByWatch: 0
+  isHeldByStrap: 0
+  leftHandHaptics: {fileID: 0}
+  rightHandHaptics: {fileID: 0}
+  hapticsDistanceThreshold: 0.2
+  leftHand: {fileID: 0}
+  rightHand: {fileID: 0}
   grabDistance: 0.1
   releaseDistance: 0.2
 --- !u!1 &1815318735
@@ -1527,7 +1537,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: NaN, z: 2.3157239e-36, w: 2.3564005e-25}
+  m_BoundingSphereOverride: {x: 4e-45, y: 6e-44, z: 6e-45, w: 3.0558e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -2558,7 +2568,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46458ef4105ba86439b643aeaecd21b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetGameObject: {fileID: 0}
 --- !u!114 &3127728407676174911
 MonoBehaviour:
   m_ObjectHideFlags: 0
