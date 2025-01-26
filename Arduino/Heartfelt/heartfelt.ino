@@ -120,11 +120,11 @@ void loop() {
       }
       
       moveMotors();
-      
+
       // Process packet after motors have moved
       if (newPacketAvailable) {
         Serial.println("Received: " + currentPacket);
-        // Process the packet here
+        currentBPM = currentPacket.toInt();
         newPacketAvailable = false;
       }
     }
@@ -188,6 +188,7 @@ void moveMotors() {
     if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
       stepperA.moveTo(-500);  // Start filling A
       heartbeatPhase = 1;
+      displayBPM(currentBPM);
     }
   }
   // Phase 1: Wait for A to be completely full before starting next phase
@@ -196,6 +197,7 @@ void moveMotors() {
       stepperA.moveTo(0);     // Start emptying A
       stepperB.moveTo(1000);  // Start filling B
       heartbeatPhase = 2;
+      displayBPM(currentBPM);
     }
   }
   // Phase 2: Wait for both A to empty AND B to fill completely
@@ -203,12 +205,14 @@ void moveMotors() {
     if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 1000) {
       stepperB.moveTo(0);     // Start emptying B
       heartbeatPhase = 3;
+      displayBPM(currentBPM);
     }
   }
   // Phase 3: Wait for B to completely empty before starting next cycle
   else if (heartbeatPhase == 3) {
     if (stepperB.currentPosition() == 0) {
       heartbeatPhase = 0;     // Reset to start of cycle
+      displayBPM(currentBPM);
     }
   }
 
@@ -230,9 +234,9 @@ void displayBPM(int bpm) {
     const int BPM_Y = 5;
     
     // Clear only the BPM area (not the whole display)
-    display.fillRect(BPM_X, BPM_Y, 70, 30, SSD1306_BLACK);
+    display.fillRect(BPM_X, BPM_Y, 70, 64, SSD1306_BLACK);
     
-    display.setTextSize(2);
+    display.setTextSize(4);
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(BPM_X, BPM_Y);
     
