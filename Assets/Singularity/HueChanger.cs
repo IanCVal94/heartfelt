@@ -27,6 +27,7 @@ public class HueChanger : MonoBehaviour
     void Update()
     {
         // Update the material color based on the value
+        value = globalHyperate.GlobalHeartRate;
         UpdateColor();
     }
 

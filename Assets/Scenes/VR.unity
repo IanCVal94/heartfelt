@@ -419,6 +419,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.22500011
   m_Center: {x: 0.00000005960466, y: 0, z: -0.0000010058284}
+--- !u!114 &404161048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404161039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ac041421c13fdc4ca09d29971d1c29f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value: 80
 --- !u!1 &439588099
 GameObject:
   m_ObjectHideFlags: 0
@@ -1156,6 +1169,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6923018253085978711, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 404161044}
+    - targetCorrespondingSourceObject: {fileID: 6923018253085978711, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 404161048}
   m_SourcePrefab: {fileID: 100100000, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
 --- !u!1 &1519520463 stripped
 GameObject:
@@ -1308,6 +1324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1593473467}
   - component: {fileID: 1593473466}
+  - component: {fileID: 1593473468}
   m_Layer: 0
   m_Name: Post Processing
   m_TagString: Untagged
@@ -1347,6 +1364,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1593473468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1593473465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06bb5dc27f6c3f74ab4aa4456ed33b05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: {fileID: 1593473466}
 --- !u!1 &1657976413 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1084091470699946726, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
@@ -1497,7 +1527,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.2174e-41, y: 0, z: 0, w: 1.0588973e+13}
+  m_BoundingSphereOverride: {x: 0, y: NaN, z: 2.3157239e-36, w: 2.3564005e-25}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
