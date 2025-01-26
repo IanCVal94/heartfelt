@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Normal.Realtime;
 
-public class HeartBox : RealtimeComponent
+public class HeartBox : MonoBehaviour
 {
 	public GameObject eyeAnchor;
 	public HeartTest1 heart;
 	public bool hasHeart = false;
-
-	public RealtimeTransform realTimeTransform;
-	public Rigidbody heartRb;
 
 	// Distance thresholds for grabbing and releasing
 	public float grabDistance = 1.0f;   // Distance to "grab" the heart
@@ -18,17 +15,14 @@ public class HeartBox : RealtimeComponent
 
 	void Start()
 	{
-		// Ensure the HeartBox has a RealtimeTransform component
-		realTimeTransform = heart.GetComponent<RealtimeTransform>();
-
-		// Ensure the HeartBox has a Rigidbody component
-		heartRb = heart.GetComponent<Rigidbody>();
-
+		
+		/*
 		if (hasHeart)
 		{
 			Debug.Log("Heartbox starts with the heart.");
 			heart.transform.position = transform.position;
 		}
+		*/
 	}
 
 	void Update()
@@ -59,15 +53,16 @@ public class HeartBox : RealtimeComponent
 
 			//Debug.Log("Distance to heart: " + distanceToHeart);
 
-			if (!hasHeart && distanceToHeart <= grabDistance)
+			if (distanceToHeart <= grabDistance)
 			{
-				heart.HeartBoxGrabbed(this);
+				//heart.HeartBoxGrabbed(this);
 			}
 			
 
 		}
 	}
 
+	/*
 	private void GrabHeart()
 	{
 		hasHeart = true;
@@ -88,4 +83,5 @@ public class HeartBox : RealtimeComponent
 		// Make the heart non-kinematic
 		heartRb.isKinematic = false;
 	}
+	*/
 }
