@@ -13,6 +13,11 @@ const char* password = "tacocat4642";      // Your WiFi password
 #define STEP_PIN_B 3
 #define DIR_PIN_B 2
 
+// Add half-step configuration pins
+#define MS1_PIN 21
+#define MS2_PIN 20
+#define MS3_PIN 19
+
 // Track which phase of the heartbeat we're in
 int heartbeatPhase =  0;
 
@@ -50,7 +55,21 @@ bool newPacketAvailable = false;
 
 void setup() {
   Serial.begin(115200);
+  delay(1000);  // Add delay to allow Serial to initialize
+  Serial.println("\nStarting up...");  // Add initial message
+  
   Wire.begin(9, 8);  // Set SDA to GPIO9, SCL to GPIO8
+  Serial.println("I2C initialized");  // Add debug message
+
+  // Initialize microstepping pins
+  pinMode(MS1_PIN, OUTPUT);
+  pinMode(MS2_PIN, OUTPUT);
+  pinMode(MS3_PIN, OUTPUT);
+  
+  // Set microstepping mode (1/8 step)
+  digitalWrite(MS1_PIN, HIGH);
+  digitalWrite(MS2_PIN, HIGH);
+  digitalWrite(MS3_PIN, LOW);
 
   // Initialize display first
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -72,18 +91,21 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   
-  // Set max speed and acceleration
-  stepperA.setMaxSpeed(8000);
-  stepperA.setAcceleration(4000);
-  stepperB.setMaxSpeed(12000);
-  stepperB.setAcceleration(7000);
+  // Set max speed and acceleration (8x increase)
+  stepperA.setMaxSpeed(40000);
+  stepperA.setAcceleration(20000);
+  stepperB.setMaxSpeed(64000);
+  stepperB.setAcceleration(20000);
 
   initWiFi();
 }
 
 void initWiFi() {
+  Serial.println("\nInitializing WiFi...");  // Add debug message
+  
   // Disconnect any existing WiFi connection first
   WiFi.disconnect(true);  // true = disable WiFi at the same time
+  Serial.println("Previous WiFi connections cleared");  // Add debug message
   delay(1000);  // Give it some time to disconnect fully
 
   // Clear any previous WiFi config
@@ -91,15 +113,27 @@ void initWiFi() {
   WiFi.persistent(false);  // Don't save WiFi settings in flash
 
   // Now attempt to connect
+  Serial.println("Attempting to connect to: " + String(ssid));  // Add network name
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
-  while (WiFi.status() != WL_CONNECTED) {
+  
+  Serial.print("Connecting to WiFi");
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {  // Add timeout
     Serial.print('.');
     delay(1000);
+    attempts++;
   }
-  Serial.println(WiFi.localIP());
+  
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nConnected successfully!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nFailed to connect to WiFi!");
+  }
 
   server.begin();
+  Serial.println("Server started");
 }
 
 
@@ -187,18 +221,18 @@ void updateMotorSpeed(int bpm) {
     
     if (bpm <= 70) {
         speedMultiplier = 0.2;  // 20% speed
-    } else if (bpm >= 90) {
+    } else if (bpm >= 100) {
         speedMultiplier = 1.0;  // 100% speed
     } else {
         // Linear interpolation between 20% and 100% for BPM between 70 and 90
-        speedMultiplier = 0.2 + (bpm - 70) * (0.8 / 20);
+        speedMultiplier = 0.2 + (bpm - 70) * (0.8 / 30);
     }
     
-    // Base speeds
-    const float baseSpeedA = 8000;
-    const float baseSpeedB = 12000;
-    const float baseAccelA = 4000;
-    const float baseAccelB = 7000;
+
+    const float baseSpeedA = 40000;
+    const float baseSpeedB = 64000;
+    const float baseAccelA = 20000;
+    const float baseAccelB = 20000;
     
     // Apply multiplier
     stepperA.setMaxSpeed(baseSpeedA * speedMultiplier);
@@ -217,7 +251,7 @@ void moveMotors() {
   // Phase 0: Fill chamber A and confirm it's full
   if (heartbeatPhase == 0) {
     if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
-      stepperA.moveTo(-500);  // Start filling A
+      stepperA.moveTo(-500);  // 8x increase from -500
       heartbeatPhase = 1;
     }
   }
@@ -225,7 +259,7 @@ void moveMotors() {
   else if (heartbeatPhase == 1) {
     if (stepperA.currentPosition() == -500) {
       stepperA.moveTo(0);     // Start emptying A
-      stepperB.moveTo(1000);  // Start filling B
+      stepperB.moveTo(1000);  // 8x increase from 1000
       heartbeatPhase = 2;
     }
   }
