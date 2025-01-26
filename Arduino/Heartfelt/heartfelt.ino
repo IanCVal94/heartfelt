@@ -200,13 +200,17 @@ void updateMotorSpeed(int bpm) {
 }
 
 void moveMotors() {
+  // Add this at the start of moveMotors to ensure BPM is always displayed
+  if (newPacketAvailable) {
+    displayBPM(currentBPM);
+    updateMotorSpeed(currentBPM);
+  }
+
   // Phase 0: Fill chamber A and confirm it's full
   if (heartbeatPhase == 0) {
     if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
       stepperA.moveTo(-500);  // Start filling A
       heartbeatPhase = 1;
-      displayBPM(currentBPM);
-      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 1: Wait for A to be completely full before starting next phase
@@ -215,8 +219,6 @@ void moveMotors() {
       stepperA.moveTo(0);     // Start emptying A
       stepperB.moveTo(1000);  // Start filling B
       heartbeatPhase = 2;
-      displayBPM(currentBPM);
-      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 2: Wait for both A to empty AND B to fill completely
@@ -224,16 +226,12 @@ void moveMotors() {
     if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 1000) {
       stepperB.moveTo(0);     // Start emptying B
       heartbeatPhase = 3;
-      displayBPM(currentBPM);
-      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 3: Wait for B to completely empty before starting next cycle
   else if (heartbeatPhase == 3) {
     if (stepperB.currentPosition() == 0) {
       heartbeatPhase = 0;     // Reset to start of cycle
-      displayBPM(currentBPM);
-      updateMotorSpeed(currentBPM);
     }
   }
 
@@ -242,14 +240,8 @@ void moveMotors() {
   stepperB.run();
 }
 
-
 void displayBPM(int bpm) {
-    // Only update if BPM has changed
-    static int lastDisplayedBPM = -1;
-    if (bpm == lastDisplayedBPM) {
-        return;
-    }
-    
+    // Remove the static comparison since we want to update whenever called
     // Position for BPM text (adjust these coordinates as needed)
     const int BPM_X = 5;
     const int BPM_Y = 5;
@@ -261,6 +253,7 @@ void displayBPM(int bpm) {
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(BPM_X, BPM_Y);
     
+    // Only show OFF if BPM is 0, otherwise show the actual BPM
     if (bpm == 0) {
         display.print("OFF");
     } else {
@@ -268,5 +261,4 @@ void displayBPM(int bpm) {
     }
     
     display.display();  // Update the display
-    lastDisplayedBPM = bpm;  // Store the new value
 }
