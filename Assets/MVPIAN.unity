@@ -1943,7 +1943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7644412094110592613, guid: b10592ee3c5e98444bb28689626de8ad, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -2853,11 +2853,11 @@ MonoBehaviour:
   heartBoxStrap: {fileID: 729545402}
   isHeldByWatch: 0
   isHeldByStrap: 0
-  leftHandHaptics: {fileID: 0}
-  rightHandHaptics: {fileID: 0}
+  leftHandHaptics: {fileID: 2053194405}
+  rightHandHaptics: {fileID: 228299337}
   hapticsDistanceThreshold: 0.2
-  leftHand: {fileID: 0}
-  rightHand: {fileID: 0}
+  leftHand: {fileID: 2053194404}
+  rightHand: {fileID: 228299336}
   grabDistance: 0.1
   releaseDistance: 0.2
 --- !u!135 &1657976422
@@ -3299,8 +3299,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ac041421c13fdc4ca09d29971d1c29f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetRenderer: {fileID: 0}
+  targetRenderer: {fileID: 1928847983}
   value: 100
+--- !u!23 &1928847983 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5696302975601547499, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+  m_PrefabInstance: {fileID: 3755484750907343783}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1932960186
 GameObject:
   m_ObjectHideFlags: 0
