@@ -22,6 +22,18 @@ const int STEPPER_B_STEPS = 1000;
 const int STEPPER_A_START = STEPPER_A_STEPS * (1-BACKSTROKE_MULTIPLIER_A);
 const int STEPPER_B_START = STEPPER_B_STEPS * (1-BACKSTROKE_MULTIPLIER_B);
 
+// Add speed control variable (at the top with other constants)
+float speedMultiplier = 1.0;
+
+// Add speed setter function
+void setSpeed(float newSpeed) {
+  speedMultiplier = newSpeed;
+  stepperA.setMaxSpeed(8000 * speedMultiplier);
+  stepperA.setAcceleration(8000 * speedMultiplier);
+  stepperB.setMaxSpeed(10000 * speedMultiplier);
+  stepperB.setAcceleration(10000 * speedMultiplier);
+}
+
 void setup() {
   // Configure microstepping for full-step mode
   pinMode(MS1_PIN, OUTPUT);
@@ -37,41 +49,49 @@ void setup() {
   stepperB.setMaxSpeed(10000);
   stepperB.setAcceleration(10000);
 
+  // Update speed settings to use multiplier
+  setSpeed(0.5);  // Initialize with default speed
+
   Serial.begin(9600);
 }
 
 // Track which phase of the heartbeat we're in
 int heartbeatPhase = 0;
 
-void loop() {
+// Move this from loop() to its own function
+void moveMotors() {
   // Phase 0: Start filling A
   if (heartbeatPhase == 0) {
-    stepperA.move(-STEPPER_A_STEPS);  // Move relative to current position
+    stepperA.move(-STEPPER_A_STEPS);
     heartbeatPhase = 1;
   }
   // Phase 1: Wait for A to be completely full before starting next phase
   else if (heartbeatPhase == 1) {
-    if (stepperA.distanceToGo() == 0) {  // Check if movement is complete
-      stepperA.move(STEPPER_A_STEPS * BACKSTROKE_MULTIPLIER_A);  // Return with multiplier
-      stepperB.move(STEPPER_B_STEPS);  // Start filling B
+    if (stepperA.distanceToGo() == 0) {
+      stepperA.move(STEPPER_A_STEPS * BACKSTROKE_MULTIPLIER_A);
+      stepperB.move(STEPPER_B_STEPS);
       heartbeatPhase = 2;
     }
   }
   // Phase 2: Wait for both A to empty AND B to fill completely
   else if (heartbeatPhase == 2) {
     if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0) {
-      stepperB.move(-STEPPER_B_STEPS * BACKSTROKE_MULTIPLIER_B);  // Return with multiplier
+      stepperB.move(-STEPPER_B_STEPS * BACKSTROKE_MULTIPLIER_B);
       heartbeatPhase = 3;
     }
   }
   // Phase 3: Wait for B to completely empty before starting next cycle
   else if (heartbeatPhase == 3) {
     if (stepperB.distanceToGo() == 0) {
-      heartbeatPhase = 0;  // Reset to start of cycle
+      heartbeatPhase = 0;
     }
   }
 
   // Run both motors
   stepperA.run();
   stepperB.run();
+}
+
+void loop() {
+  moveMotors();
 }
