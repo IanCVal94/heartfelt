@@ -2,55 +2,65 @@ using System.Collections;
 using UnityEngine;
 using Normal.Realtime;
 using Normal.Realtime.Serialization;
+using Oculus.Interaction;
+using Oculus.Haptics;
 
-public class HeartTest1 : RealtimeComponent
+public class HeartTest1 : RealtimeComponent<HeartTest1Model>
 {
 	// Dynamic heart rate (beats per minute)
 	[SerializeField] private float heartRate = 60f; // Default to 60 BPM
 
 	// Scale parameters
-	[SerializeField] private Vector3 minScale = Vector3.one * 0.9f;
-	[SerializeField] private Vector3 maxScale = Vector3.one * 1.1f;
+	[SerializeField] private float minScale = 0.9f;
+	[SerializeField] private float maxScale = 1.1f;
 	[SerializeField] private float smoothness = 0.5f; // How smooth the transition is
+
+	public Transform heartVisuals;
 
 	private Vector3 initialScale;
 	private bool isPulsing;
 
 	[Header("Audio")]
 	public AudioSource heartBeat;
-
+	
+	
 	[Header("Physics")]
 	Rigidbody rb;
 	public RealtimeTransform realTimeTransform;
 
 	[Header("Heart Box")]
-	public HeartBox heartBox;
-	public bool isHeldByBox = false;
+	public HeartBoxWatch heartBoxWatch;
+	public HeartBoxStrap heartBoxStrap;
+	public bool isHeldByWatch = false;
+	public bool isHeldByStrap = false;
+
 
 	// Distance thresholds for grabbing and releasing
 	public float grabDistance = 0.1f;   // Distance to "grab" the heart
 	public float releaseDistance = 0.2f; // Distance to "release" the heart
 
-	// Cooldown logic
-	private Vector3 lastReleasePosition;
-	private bool isInCooldown = false;
+	private bool isGrabbed = false;
 
 	void Start()
 	{
 		// Save the initial scale of the object
-		initialScale = transform.localScale;
+		initialScale = heartVisuals.localScale;
 
 		rb = GetComponent<Rigidbody>();
 
 		// Ensure the Heart has a RealtimeTransform component
 		realTimeTransform = GetComponent<RealtimeTransform>();
-
-		// Initialize lastReleasePosition
-		lastReleasePosition = transform.position;
+		
 	}
 
 	void Update()
 	{
+		// if space bar is pressed, release the heart
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			HeartBoxReleased();
+		}
+		
 		// Convert to int and set heart rate
 		SetHeartRate((float)globalHyperate.GlobalHeartRate);
 
@@ -62,15 +72,16 @@ public class HeartTest1 : RealtimeComponent
 			StartCoroutine(Pulse(pulseDuration));
 		}
 
-		// Check distance to heartBox and handle grabbing/releasing
-		if (heartBox != null)
+		// Continuously update the heart's position and rotation if it is grabbed
+		if (isHeldByWatch)
 		{
-			// Continuously update the heart's position and rotation if it is grabbed
-			if (isHeldByBox)
-			{
-				transform.position = heartBox.transform.position;
-				transform.rotation = heartBox.transform.rotation;
-			}
+			transform.position = heartBoxWatch.transform.position;
+			transform.rotation = heartBoxWatch.transform.rotation;
+		}
+		else if (isHeldByStrap)
+		{
+			transform.position = heartBoxStrap.transform.position;
+			transform.rotation = heartBoxStrap.transform.rotation;
 		}
 	}
 
@@ -94,7 +105,7 @@ public class HeartTest1 : RealtimeComponent
 		{
 			elapsedTime += Time.deltaTime;
 			float t = Mathf.SmoothStep(0f, 1f, elapsedTime / growDuration);
-			transform.localScale = Vector3.Lerp(minScale, maxScale, t);
+			heartVisuals.localScale = initialScale * Mathf.Lerp(minScale, maxScale, t);
 			yield return null;
 		}
 
@@ -105,12 +116,12 @@ public class HeartTest1 : RealtimeComponent
 		{
 			elapsedTime += Time.deltaTime;
 			float t = Mathf.SmoothStep(0f, 1f, elapsedTime / shrinkDuration);
-			transform.localScale = Vector3.Lerp(maxScale, minScale, t);
+			heartVisuals.localScale = initialScale * Mathf.Lerp(maxScale, minScale, t);
 			yield return null;
 		}
 
 		// Reset the scale to the initial value (just in case)
-		transform.localScale = initialScale;
+		heartVisuals.localScale = initialScale;
 		isPulsing = false;
 	}
 
@@ -143,48 +154,158 @@ public class HeartTest1 : RealtimeComponent
 		OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
 	}
 
-	public void HeartBoxGrabbed(HeartBox box)
+	public void HeartBoxGrabbedWatch()
 	{
-		// If the heart is in cooldown, return early
-		if (isInCooldown)
+		if (!isHeldByWatch && !isHeldByStrap)
 		{
-			Debug.Log("Heart is in cooldown, cannot grab yet.");
-			return;
-		}
-
-		if (!isHeldByBox) // Ensure it is only called once
-		{
-			heartBox = box;
-			isHeldByBox = true;
+			if (isGrabbed)
+			{
+				Debug.Log("Heart is in already grabbed by watch, cannot grab yet.");
+				return;
+			}
+			
+			isHeldByWatch = true;
+			UpdateHeldByWatchBoolOnServer();
+			
+			isHeldByStrap = false;
+			UpdateHeldByStrapBoolOnServer();
 
 			realTimeTransform.RequestOwnership();
 
-			Debug.Log("Heart grabbed by box");
+			Debug.Log("Heart grabbed by watch");
+		}
+	}
+	
+	public void HeartBoxGrabbedStrap()
+	{
+		if (!isHeldByWatch && !isHeldByStrap)
+		{
+			if (isGrabbed)
+			{
+				Debug.Log("Heart is in already grabbed by strap, cannot grab yet.");
+				return;
+			}
+			
+			isHeldByStrap = true;
+			UpdateHeldByStrapBoolOnServer();
+			
+			isHeldByWatch = false;
+			UpdateHeldByWatchBoolOnServer();
+
+			realTimeTransform.RequestOwnership();
+
+			Debug.Log("Heart grabbed by strap");
 		}
 	}
 
 	public void HeartBoxReleased()
 	{
-		if (isHeldByBox) // Ensure it is only called once
+		if (isHeldByWatch)
 		{
-			isHeldByBox = false;
-			lastReleasePosition = transform.position; // Save the release position
-			isInCooldown = true;
-
-			StartCoroutine(CooldownCoroutine());
-			Debug.Log("Heart released by box");
+			isHeldByWatch = false;
+			UpdateHeldByWatchBoolOnServer();
+			Debug.Log("Heart released by watch");
 		}
+		else if (isHeldByStrap)
+		{
+			isHeldByStrap = false;
+			UpdateHeldByStrapBoolOnServer();
+			Debug.Log("Heart released by strap");
+		}
+		
+			
+		isGrabbed = false;
+		UpdateServerIsGrabbedBoolean();
+
+
+		Debug.Log("Heart released by box");
+		
 	}
 
-	private IEnumerator CooldownCoroutine()
+
+	
+	
+	public void OnGrab()
 	{
-		// Wait until the heart moves farther than the grab distance from the last release position
-		while (Vector3.Distance(transform.position, lastReleasePosition) <= grabDistance)
-		{
-			yield return null; // Keep checking every frame
-		}
-
-		isInCooldown = false; // Cooldown is over
-		Debug.Log("Cooldown over, heart can be grabbed again.");
+		isGrabbed = true;
+		UpdateServerIsGrabbedBoolean();
 	}
+	
+	public void OnRelease()
+	{
+		isGrabbed = false;
+		UpdateServerIsGrabbedBoolean();
+	}
+	
+	
+	
+	
+	
+	
+	
+	public void updateLocalWatchBoolean(HeartTest1Model model, bool value)
+	{
+		isHeldByWatch = model.isHeldByWatch;
+	}
+	
+	void UpdateLocalIsGrabbedBoolean(HeartTest1Model model, bool value)
+	{
+		isGrabbed = model.isGrabbed;
+	}
+	
+	public void updateLocalStrapBoolean(HeartTest1Model model, bool value)
+	{
+		isHeldByStrap = model.isHeldByStrap;
+	}
+	
+	protected override void OnRealtimeModelReplaced(HeartTest1Model previousModel, HeartTest1Model currentModel)
+	{
+		if (previousModel != null)
+		{
+			// Unregister from events
+			previousModel.isHeldByWatchDidChange -= updateLocalWatchBoolean;
+			previousModel.isHeldByStrapDidChange -= updateLocalStrapBoolean;
+			previousModel.isGrabbedDidChange -= UpdateLocalIsGrabbedBoolean; 
+			
+		}
+		
+		if (currentModel != null)
+		{
+			if(currentModel.isFreshModel)
+			{
+				model.isHeldByWatch = isHeldByWatch;
+				model.isHeldByStrap = isHeldByStrap;
+				model.isGrabbed = isGrabbed;
+			}
+			
+			// Update data from model
+			//updateLocalBoolean();
+			
+			// Register for events so we'll know if the value changes later
+			currentModel.isHeldByWatchDidChange += updateLocalWatchBoolean;
+			currentModel.isHeldByStrapDidChange += updateLocalStrapBoolean;
+			currentModel.isGrabbedDidChange += UpdateLocalIsGrabbedBoolean;
+		}
+	}
+	
+	void UpdateHeldByWatchBoolOnServer()
+	{
+		model.isHeldByWatch = isHeldByWatch;
+	}
+	
+	void UpdateHeldByStrapBoolOnServer()
+	{
+		model.isHeldByStrap = isHeldByStrap;
+	}
+	
+	void UpdateServerIsGrabbedBoolean()
+	{
+		model.isGrabbed = isGrabbed;
+	}
+	
+	
+	
+	
+	
+	
 }
