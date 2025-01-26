@@ -33,13 +33,15 @@ float currentScale = 1.0;
 bool scaleIncreasing = false;
 String currentPacket = "";
 
-// Add these variables after the existing global variables
+// Modify these variables after the existing global variables
 #define DEFAULT_BPM 60
-#define STEPS_PER_PULSE 15  // Small movement - adjust based on testing
-float currentBPM = DEFAULT_BPM;
-float slowMultiplier = 2.0;
-unsigned long lastStepperUpdate = 0;
-bool stepperForward = true;
+#define PULSE_STEPS 50  // Number of steps for each pulse (adjust based on testing)
+unsigned long lastPulseTime = 0;
+bool pulsing = false;
+int currentPosition = 0;
+
+// Add this with the other global variables
+int currentBPM = DEFAULT_BPM;  // Global BPM variable
 
 void setup() {
   Serial.begin(115200);
@@ -63,13 +65,13 @@ void setup() {
   digitalWrite(MS2_PIN, HIGH);
   digitalWrite(MS3_PIN, HIGH);
 
-  // Update stepper configuration for smoother motion
-  stepperA.setMaxSpeed(2000);
-  stepperA.setAcceleration(1000);
+  // Update stepper configuration for quick pulses
+  stepperA.setMaxSpeed(4000);  // Faster max speed for quick movements
+  stepperA.setAcceleration(8000);  // Higher acceleration for responsive pulses
   stepperA.setSpeed(0);
   
-  stepperB.setMaxSpeed(2000);
-  stepperB.setAcceleration(1000);
+  stepperB.setMaxSpeed(4000);
+  stepperB.setAcceleration(8000);
   stepperB.setSpeed(0);
 }
 
@@ -99,7 +101,7 @@ void loop() {
   loops++;
   
   unsigned long currentTime = millis();
-  updateHeartAnimation(currentTime);  // Update heart animation continuously
+  updateHeartAnimation(currentTime);
   updateStepperMotion(currentTime);
   
   if (client) {
@@ -114,6 +116,8 @@ void loop() {
           currentPacket = "...";
         } else {
           currentPacket = packet;
+          // Update the BPM when we receive a valid packet
+          currentBPM = packet.toInt();
         }
 
         client.println("SHello World1E " + String(loops));
@@ -213,17 +217,26 @@ void displayNumberAndText(String text, float scale) {
 }
 
 void updateStepperMotion(unsigned long currentTime) {
-  static float currentPosition = 0;
-  unsigned long stepperInterval = (60000.0 / (currentBPM / slowMultiplier));
+  // Calculate time between pulses based on BPM
+  unsigned long pulseInterval = 60000 / currentBPM;  // Changed from BPM to currentBPM
   
-  if (currentTime - lastStepperUpdate >= 10) {  // Update more frequently for smoother motion
-    float phase = (float)(currentTime % stepperInterval) / stepperInterval;
-    float targetPos = STEPS_PER_PULSE * 8 * sin(2 * PI * phase);  // Multiply by 8 for microstepping
+  if (currentTime - lastPulseTime >= pulseInterval) {
+    // Start new pulse
+    pulsing = true;
+    lastPulseTime = currentTime;
     
-    stepperA.moveTo(targetPos);
-    stepperB.moveTo(-targetPos);  // Opposite direction
-    
-    lastStepperUpdate = currentTime;
+    // Move steppers in opposite directions
+    stepperA.moveTo(currentPosition + PULSE_STEPS);
+    stepperB.moveTo(currentPosition - PULSE_STEPS);
+  }
+  
+  // Run the steppers
+  if (stepperA.distanceToGo() == 0 && stepperB.distanceToGo() == 0 && pulsing) {
+    // Reset position for next pulse
+    currentPosition = 0;
+    stepperA.setCurrentPosition(0);
+    stepperB.setCurrentPosition(0);
+    pulsing = false;
   }
   
   stepperA.run();
