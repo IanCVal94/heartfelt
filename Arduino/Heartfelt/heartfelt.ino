@@ -108,11 +108,12 @@ void loop() {
 
   if (client) {
     Serial.println("Client connected!");
-    
+        char buffer[1024];
     while (client.connected()) {
       // Check for new data without blocking
       if (client.available()) {
         currentPacket = client.readStringUntil('\n');
+        currentPacket.trim();
         newPacketAvailable = true;
       }
       
@@ -120,8 +121,10 @@ void loop() {
 
       // Process packet after motors have moved
       if (newPacketAvailable) {
-        Serial.println("Received: " + currentPacket);
+        
         currentBPM = currentPacket.toInt();
+               Serial.print("Received BPM: ");  // Added debug print
+        Serial.println(currentBPM);      // Added debug print
         newPacketAvailable = false;
       }
     }
@@ -179,6 +182,23 @@ void drawHeart(float scale) {
 //     }
 // }
 
+void updateMotorSpeed(int bpm) {
+    // Calculate speed multiplier (0.0 to 1.0)
+    float speedMultiplier = bpm >= 100 ? 1.0 : (bpm / 100.0);
+    
+    // Base speeds
+    const float baseSpeedA = 8000;
+    const float baseSpeedB = 12000;
+    const float baseAccelA = 4000;
+    const float baseAccelB = 7000;
+    
+    // Apply multiplier
+    stepperA.setMaxSpeed(baseSpeedA * speedMultiplier);
+    stepperB.setMaxSpeed(baseSpeedB * speedMultiplier);
+    stepperA.setAcceleration(baseAccelA * speedMultiplier);
+    stepperB.setAcceleration(baseAccelB * speedMultiplier);
+}
+
 void moveMotors() {
   // Phase 0: Fill chamber A and confirm it's full
   if (heartbeatPhase == 0) {
@@ -186,6 +206,7 @@ void moveMotors() {
       stepperA.moveTo(-500);  // Start filling A
       heartbeatPhase = 1;
       displayBPM(currentBPM);
+      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 1: Wait for A to be completely full before starting next phase
@@ -195,6 +216,7 @@ void moveMotors() {
       stepperB.moveTo(1000);  // Start filling B
       heartbeatPhase = 2;
       displayBPM(currentBPM);
+      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 2: Wait for both A to empty AND B to fill completely
@@ -203,6 +225,7 @@ void moveMotors() {
       stepperB.moveTo(0);     // Start emptying B
       heartbeatPhase = 3;
       displayBPM(currentBPM);
+      updateMotorSpeed(currentBPM);
     }
   }
   // Phase 3: Wait for B to completely empty before starting next cycle
@@ -210,6 +233,7 @@ void moveMotors() {
     if (stepperB.currentPosition() == 0) {
       heartbeatPhase = 0;     // Reset to start of cycle
       displayBPM(currentBPM);
+      updateMotorSpeed(currentBPM);
     }
   }
 
