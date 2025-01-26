@@ -33,15 +33,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // Global variables for heart animation
 float currentScale = 1.0;
-bool scaleIncreasing = false;
-unsigned long lastAnimationUpdate = 0;
-const unsigned long ANIMATION_INTERVAL = 100;  // 25ms between updates
+// bool scaleIncreasing = false;
+// unsigned long lastAnimationUpdate = 0;
+// const unsigned long ANIMATION_INTERVAL = 100;  // 25ms between updates
 
 // Modify these variables after the existing global variables
 #define DEFAULT_BPM 60
-#define PULSE_STEPS 50  // Number of steps for each pulse (adjust based on testing)
-unsigned long lastPulseTime = 0;
-bool pulsing = false;
 int currentPosition = 0;
 
 // Add this with the other global variables
