@@ -46,6 +46,78 @@ int currentBPM = DEFAULT_BPM;  // Global BPM variable
 unsigned long lastLoopUpdate = 0;
 const unsigned long LOOP_INTERVAL = 25;  // 25ms interval if needed
 
+// Add timer interrupt variables
+volatile int currentPeriodA = 1000;  // Period for stepper A
+volatile int currentPeriodB = 1000;  // Period for stepper B
+volatile bool stepPinStateA = false;
+volatile bool stepPinStateB = false;
+volatile long stepCountA = 0;
+volatile long stepCountB = 0;
+volatile bool directionA = true;  // true = forward, false = backward
+volatile bool directionB = true;
+
+// Timer interrupt handlers
+void ARDUINO_ISR_ATTR onTimer0() {
+  stepPinStateA = !stepPinStateA;
+  digitalWrite(STEP_PIN_A, stepPinStateA);
+  
+  if (stepPinStateA) {  // Count only on rising edge
+    if (directionA) stepCountA++; else stepCountA--;
+    if (abs(stepCountA) >= PULSE_STEPS) {
+      directionA = !directionA;
+      digitalWrite(DIR_PIN_A, directionA);
+      stepCountA = 0;
+    }
+  }
+}
+
+void ARDUINO_ISR_ATTR onTimer1() {
+  stepPinStateB = !stepPinStateB;
+  digitalWrite(STEP_PIN_B, stepPinStateB);
+  
+  if (stepPinStateB) {  // Count only on rising edge
+    if (directionB) stepCountB++; else stepCountB--;
+    if (abs(stepCountB) >= PULSE_STEPS) {
+      directionB = !directionB;
+      digitalWrite(DIR_PIN_B, directionB);
+      stepCountB = 0;
+    }
+  }
+}
+
+void setupTimers() {
+  // Configure pins
+  pinMode(STEP_PIN_A, OUTPUT);
+  pinMode(DIR_PIN_A, OUTPUT);
+  pinMode(STEP_PIN_B, OUTPUT);
+  pinMode(DIR_PIN_B, OUTPUT);
+  pinMode(MS1_PIN, OUTPUT);
+  pinMode(MS2_PIN, OUTPUT);
+  pinMode(MS3_PIN, OUTPUT);
+  
+  // Configure microstepping
+  digitalWrite(MS1_PIN, LOW);
+  digitalWrite(MS2_PIN, LOW);
+  digitalWrite(MS3_PIN, LOW);
+  
+  // Set initial directions
+  digitalWrite(DIR_PIN_A, directionA);
+  digitalWrite(DIR_PIN_B, directionB);
+  
+  // Configure timer interrupts - using 1MHz base frequency
+  hw_timer_t *timer0 = timerBegin(1000000);  // 1MHz timer frequency
+  hw_timer_t *timer1 = timerBegin(1000000);  // 1MHz timer frequency
+  
+  // Attach interrupt handlers
+  timerAttachInterrupt(timer0, &onTimer0);
+  timerAttachInterrupt(timer1, &onTimer1);
+  
+  // Set alarm to trigger at specified intervals (in microseconds)
+  // true for auto-reload, 0 for unlimited repeats
+  timerAlarm(timer0, currentPeriodA, true, 0);
+  timerAlarm(timer1, currentPeriodB, true, 0);
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(9, 8);  // Set SDA to GPIO9, SCL to GPIO8
@@ -58,7 +130,7 @@ void setup() {
   display.clearDisplay();
   initWiFi();
 
-
+  setupTimers();  // Add this line to setup()
 }
 
 void initWiFi() {
