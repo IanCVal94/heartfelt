@@ -22,32 +22,46 @@ void setup() {
   digitalWrite(MS2_PIN, LOW);
   digitalWrite(MS3_PIN, LOW);
 
-  // Set max speed and acceleration for faster motion
-  stepperA.setMaxSpeed(12000);
-  stepperA.setAcceleration(12000);
-  stepperB.setMaxSpeed(12000);
-  stepperB.setAcceleration(12000);
+  // Set max speed and acceleration
+  stepperA.setMaxSpeed(1000);
+  stepperA.setAcceleration(2000);
+  stepperB.setMaxSpeed(1000);
+  stepperB.setAcceleration(2000);
 
-  // Optional debugging
-  Serial.begin(9600);x
+  Serial.begin(9600);
 }
 
+// Track which phase of the heartbeat we're in
+int heartbeatPhase = 0;
+
 void loop() {
-  // Check if Motor B has reached its current target
-  if (stepperB.distanceToGo() == 0) {
-    // Toggle direction for Motor B (oscillates between 0 and 600)
-    int nextTargetB = (stepperB.currentPosition() == 0) ? 1000 : 0;
-    stepperB.moveTo(nextTargetB);
-
-    // Set Motor A to be half and inverted
-    int nextTargetA = -nextTargetB / 2;
-    stepperA.moveTo(nextTargetA);
-
-    // Optional: Debugging information
-    Serial.print("Motor B Target: ");
-    Serial.print(nextTargetB);
-    Serial.print(", Motor A Target: ");
-    Serial.println(nextTargetA);
+  // Phase 0: Fill chamber A and confirm it's full
+  if (heartbeatPhase == 0) {
+    if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 0) {
+      stepperA.moveTo(-500);  // Start filling A
+      heartbeatPhase = 1;
+    }
+  }
+  // Phase 1: Wait for A to be completely full before starting next phase
+  else if (heartbeatPhase == 1) {
+    if (stepperA.currentPosition() == -500) {
+      stepperA.moveTo(0);     // Start emptying A
+      stepperB.moveTo(1000);  // Start filling B
+      heartbeatPhase = 2;
+    }
+  }
+  // Phase 2: Wait for both A to empty AND B to fill completely
+  else if (heartbeatPhase == 2) {
+    if (stepperA.currentPosition() == 0 && stepperB.currentPosition() == 1000) {
+      stepperB.moveTo(0);     // Start emptying B
+      heartbeatPhase = 3;
+    }
+  }
+  // Phase 3: Wait for B to completely empty before starting next cycle
+  else if (heartbeatPhase == 3) {
+    if (stepperB.currentPosition() == 0) {
+      heartbeatPhase = 0;     // Reset to start of cycle
+    }
   }
 
   // Run both motors
