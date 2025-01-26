@@ -100,7 +100,7 @@ void setup() {
 
   initWiFi();
     // Instead, display the IP after WiFi connection
-  displayIP();
+  // displayIP();
 }
 
 void initWiFi() {
@@ -224,11 +224,11 @@ void updateMotorSpeed(int bpm) {
     
     if (bpm <= 70) {
         speedMultiplier = 0.2;  // 20% speed
-    } else if (bpm >= 100) {
+    } else if (bpm >= 90) {     // Changed from 100 to 90
         speedMultiplier = 1.0;  // 100% speed
     } else {
         // Linear interpolation between 20% and 100% for BPM between 70 and 90
-        speedMultiplier = 0.2 + (bpm - 70) * (0.8 / 30);
+        speedMultiplier = 0.2 + (bpm - 70) * (0.8 / 20);  // Changed denominator from 30 to 20
     }
     
 
