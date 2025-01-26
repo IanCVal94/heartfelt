@@ -236,7 +236,7 @@ void displayBPM(int bpm) {
     // Clear only the BPM area (not the whole display)
     display.fillRect(BPM_X, BPM_Y, 70, 64, SSD1306_BLACK);
     
-    display.setTextSize(4);
+    display.setTextSize(5);
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(BPM_X, BPM_Y);
     
