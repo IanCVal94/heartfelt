@@ -1943,7 +1943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7644412094110592613, guid: b10592ee3c5e98444bb28689626de8ad, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -4560,8 +4560,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3127728407676174907}
   - component: {fileID: 3127728407676174906}
-  - component: {fileID: 3127728407676174911}
-  - component: {fileID: 3127728407676174910}
+  - component: {fileID: 3127728407676174913}
+  - component: {fileID: 3127728407676174912}
   m_Layer: 0
   m_Name: XR Interaction Manager
   m_TagString: Untagged
@@ -4569,7 +4569,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &3127728407676174910
+--- !u!114 &3127728407676174912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4578,10 +4578,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3127728407676174909}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46458ef4105ba86439b643aeaecd21b4, type: 3}
+  m_Script: {fileID: 11500000, guid: b5659839dc696b04989b159f67c825aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3127728407676174911
+--- !u!114 &3127728407676174913
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4590,9 +4590,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3127728407676174909}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9db4c75d3bd4ecc43ab70cf99f352409, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a4a34895fdf9584fbcbd908c97cadb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  heartObject: {fileID: 1657976413}
 --- !u!1 &3127728408198131880
 GameObject:
   m_ObjectHideFlags: 0
